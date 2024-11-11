@@ -8,13 +8,7 @@
   import DarkChart from '../widgets/DarkChart.svelte';
   import { onMount } from 'svelte';
   import getChartOptions from '../../(sidebar)/dashboard/chart_options';
-  import ActivityList from './ActivityList.svelte';
   import Change from './Change.svelte';
-  import Chat from './Chat.svelte';
-  import DesktopPc from './DesktopPc.svelte';
-  import Insights from './Insights.svelte';
-  import Traffic from './Traffic.svelte';
-  import Transactions from './Transactions.svelte';
 
   export let data: PageData;
 
@@ -86,17 +80,4 @@
       }} class="w-full"/>
     </Card>
   </div>
-  <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
-    <Chat />
-    <div class="flex flex-col gap-4">
-      <DesktopPc />
-      <Traffic {dark} />
-    </div>
-  </div>
-  <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
-    <ActivityList />
-    <Insights />
-  </div>
-
-  <Transactions {dark} />
 </div>

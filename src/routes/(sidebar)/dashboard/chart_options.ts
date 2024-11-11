@@ -28,7 +28,7 @@ export default function getChartOptions(dark: boolean): ApexOptions {
 
   const options: ApexOptions = {
     chart: {
-      height: 420,
+      height: 720,
       type: 'area',
       fontFamily: 'Inter, sans-serif',
       foreColor: mainChartColors.labelColor,
