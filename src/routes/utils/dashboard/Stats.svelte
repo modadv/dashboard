@@ -42,6 +42,34 @@
 			label: 'Apple iMac 24',
 			change: -2,
 			price: '$98,543 '
+		},
+		{
+			src: 'ipad.png',
+			image: 'ipad',
+			label: 'Apple iPad Air',
+			change: 12.5,
+			price: '$103,967'
+		},
+		{
+			src: 'imac.png',
+			image: 'imac',
+			label: 'Apple iMac 24',
+			change: -2,
+			price: '$98,543 '
+		},
+		{
+			src: 'ipad.png',
+			image: 'ipad',
+			label: 'Apple iPad Air',
+			change: 12.5,
+			price: '$103,967'
+		},
+		{
+			src: 'imac.png',
+			image: 'imac',
+			label: 'Apple iMac 24',
+			change: -2,
+			price: '$98,543 '
 		}
 	];
 
