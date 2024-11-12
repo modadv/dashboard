@@ -8,8 +8,8 @@
 	import More from '../widgets/More.svelte';
 	import { QuestionCircleSolid } from 'flowbite-svelte-icons';
 	import Products from '../../data/product.json';
-	import Delete from '../../../routes/(sidebar)/crud/products/Delete.svelte';
-	import Product from '../../../routes/(sidebar)/crud/products/Product.svelte';
+	import Delete from './Delete.svelte';
+	import Product from './Product.svelte';
 	
 	let hidden: boolean = true; // modal control
 	let drawerComponent: ComponentType = Product; // drawer component
