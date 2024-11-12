@@ -1,79 +1,26 @@
 <script lang="ts">
-	import { Avatar, Card, Heading, Popover, TabItem, Tabs } from 'flowbite-svelte';
-	import Change from '../../utils/dashboard/Change.svelte';
+	import { Button, Checkbox, Heading, Table, TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell } from 'flowbite-svelte';
+	import { EditOutline, TrashBinSolid } from 'flowbite-svelte-icons';
+	import { Card, Popover } from 'flowbite-svelte';
 	import Customers from '../../data/users.json';
-	import { avatarPath, imagesPath } from '../../utils/variables';
+	import type { ComponentType } from 'svelte';
 	import LastRange from '../widgets/LastRange.svelte';
 	import More from '../widgets/More.svelte';
 	import { QuestionCircleSolid } from 'flowbite-svelte-icons';
+	import Products from '../../data/product.json';
+	import Delete from '../../../routes/(sidebar)/crud/products/Delete.svelte';
+	import Product from '../../../routes/(sidebar)/crud/products/Product.svelte';
+	
+	let hidden: boolean = true; // modal control
+	let drawerComponent: ComponentType = Product; // drawer component
 
-	const products = [
-		{
-			src: 'iphone.png',
-			image: 'iphone',
-			label: 'iPhone 14 Pro',
-			change: 2.5,
-			price: '$445,467'
-		},
-		{
-			src: 'imac.png',
-			image: 'imac',
-			label: 'Apple iMac 27',
-			change: 12.5,
-			price: '$256,982'
-		},
-		{
-			src: 'watch.png',
-			image: 'watch',
-			label: 'Apple Watch SE',
-			change: -1.35,
-			price: '$201,869'
-		},
-		{
-			src: 'ipad.png',
-			image: 'ipad',
-			label: 'Apple iPad Air',
-			change: 12.5,
-			price: '$103,967'
-		},
-		{
-			src: 'imac.png',
-			image: 'imac',
-			label: 'Apple iMac 24',
-			change: -2,
-			price: '$98,543 '
-		},
-		{
-			src: 'ipad.png',
-			image: 'ipad',
-			label: 'Apple iPad Air',
-			change: 12.5,
-			price: '$103,967'
-		},
-		{
-			src: 'imac.png',
-			image: 'imac',
-			label: 'Apple iMac 24',
-			change: -2,
-			price: '$98,543 '
-		},
-		{
-			src: 'ipad.png',
-			image: 'ipad',
-			label: 'Apple iPad Air',
-			change: 12.5,
-			price: '$103,967'
-		},
-		{
-			src: 'imac.png',
-			image: 'imac',
-			label: 'Apple iMac 24',
-			change: -2,
-			price: '$98,543 '
-		}
-	];
-
-	const customers = Customers.slice(0, 5);
+	const toggle = (component: ComponentType) => {
+		drawerComponent = component;
+		hidden = !hidden;
+	};
+	
+	const maxProducts = 10;
+	let renderProducts = Products.slice(0, maxProducts);
 </script>
 
 <Card size="xl">
@@ -96,67 +43,47 @@
 			</div>
 		</Popover>
 	</div>
-	<Tabs
-		style="full"
-		defaultClass="flex divide-x rtl:divide-x-reverse divide-gray-200 shadow dark:divide-gray-700"
-		contentClass="p-3 mt-4"
-	>
-		<TabItem class="w-full" open>
-			<span slot="title">Top products</span>
-			<ul class="-m-3 divide-y divide-gray-200 dark:divide-gray-700 dark:bg-gray-800">
-				{#each products as { src, image, label, price, change }}
-					<li class="py-3 sm:py-4">
-						<div class="flex items-center justify-between">
-							<div class="flex min-w-0 items-center">
-								<img
-									class="h-10 w-10 flex-shrink-0"
-									src={imagesPath(src, 'products')}
-									alt={image}
-								/>
-								<div class="ml-3">
-									<p class="truncate font-medium text-gray-900 dark:text-white">
-										{label}
-									</p>
-									<Change value={change} size="sm" equalHeight class="ml-px" />
-								</div>
+	<Table>
+		<TableHead class="border-y border-gray-200 bg-gray-100 dark:border-gray-700">
+			<TableHeadCell class="w-4 p-4"><Checkbox /></TableHeadCell>
+			{#each ['Product Name', 'Technology', 'Description', 'ID', 'Price', 'Discount', 'Actions'] as title}
+				<TableHeadCell class="ps-4 font-normal">{title}</TableHeadCell>
+			{/each}
+		</TableHead>
+		<TableBody>
+			{#each renderProducts as product}
+				<TableBodyRow class="text-base">
+					<TableBodyCell class="w-4 p-4"><Checkbox /></TableBodyCell>
+					<TableBodyCell class="flex items-center space-x-6 whitespace-nowrap p-4">
+						<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
+							<div class="text-base font-semibold text-gray-900 dark:text-white">
+								{product.name}
 							</div>
-							<div
-								class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white"
-							>
-								{price}
+							<div class="text-sm font-normal text-gray-500 dark:text-gray-400">
+								{product.category}
 							</div>
 						</div>
-					</li>
-				{/each}
-			</ul>
-		</TabItem>
-		<TabItem class="w-full">
-			<span slot="title">Top customers</span>
-			<ul class="-m-3 divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
-				{#each customers as { email, name, avatar }}
-					<li class="py-3 sm:py-3.5">
-						<div class="flex items-center justify-between">
-							<div class="flex min-w-0 items-center">
-								<Avatar src={imagesPath(avatar, 'users')} />
-								<div class="ml-3">
-									<p class="truncate font-medium text-gray-900 dark:text-white">
-										{name}
-									</p>
-									<span class="text-gray-500">{email}</span>
-								</div>
-							</div>
-							<div
-								class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white"
-							>
-								${Math.floor(Math.random() * 10000)}
-							</div>
-						</div>
-					</li>
-				{/each}
-			</ul>
-		</TabItem>
-	</Tabs>
-
+					</TableBodyCell>
+					<TableBodyCell class="p-4">{product.technology}</TableBodyCell>
+					<TableBodyCell
+						class="max-w-sm overflow-hidden truncate p-4 text-base font-normal text-gray-500 dark:text-gray-400 xl:max-w-xs"
+						>{product.description}</TableBodyCell
+					>
+					<TableBodyCell class="p-4">#{product.id}</TableBodyCell>
+					<TableBodyCell class="p-4">{product.price}</TableBodyCell>
+					<TableBodyCell class="p-4">{product.discount}</TableBodyCell>
+					<TableBodyCell class="space-x-2">
+						<Button size="sm" class="gap-2 px-3" on:click={() => toggle(Product)}>
+							<EditOutline size="sm" /> Update
+						</Button>
+						<Button color="red" size="sm" class="gap-2 px-3" on:click={() => toggle(Delete)}>
+							<TrashBinSolid size="sm" /> Delete item
+						</Button>
+					</TableBodyCell>
+				</TableBodyRow>
+			{/each}
+		</TableBody>
+	</Table>
 	<div
 		class="mt-4 flex items-center justify-between border-t border-gray-200 pt-3 dark:border-gray-700 sm:pt-6"
 	>
