@@ -2,7 +2,6 @@
 	import { Button, Checkbox, Heading, Table, TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell } from 'flowbite-svelte';
 	import { EditOutline, TrashBinSolid } from 'flowbite-svelte-icons';
 	import { Card, Popover } from 'flowbite-svelte';
-	import Customers from '../../data/users.json';
 	import type { ComponentType } from 'svelte';
 	import LastRange from '../widgets/LastRange.svelte';
 	import More from '../widgets/More.svelte';
