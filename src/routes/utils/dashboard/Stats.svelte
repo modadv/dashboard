@@ -19,7 +19,7 @@
 		hidden = !hidden;
 	};
 	
-	const maxProducts = 10;
+	const maxProducts = 9;
 	let renderProducts = Products.slice(0, maxProducts);
 </script>
 
