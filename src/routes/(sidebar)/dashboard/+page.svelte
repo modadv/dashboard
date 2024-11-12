@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Dashboard from '../../utils/dashboard/Dashboard.svelte';
+	import Dashboard from '../../utils/dashboard/Babylon.svelte';
 	import MetaTag from '../../utils/MetaTag.svelte';
 	import Footer from '../Footer.svelte';
 	export let data;
