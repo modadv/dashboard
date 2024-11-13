@@ -74,7 +74,7 @@
     </div>
 
     <!-- BabylonPanel.js Canvas -->
-    <canvas bind:this={canvas} class="w-full h-64"></canvas>
+    <canvas bind:this={canvas} class="w-full h-full"></canvas>
 
     <div
         class="mt-4 flex items-center justify-between border-t border-gray-200 pt-3 dark:border-gray-700 sm:pt-6"
