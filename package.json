@@ -26,6 +26,7 @@
 		"apexcharts": "^3.54.0",
 		"autoprefixer": "^10.4.20",
 		"babylonjs": "^7.33.0",
+		"babylonjs-gui": "^7.33.0",
 		"dayjs": "^1.11.13",
 		"eslint": "^9.11.1",
 		"eslint-config-prettier": "^9.1.0",

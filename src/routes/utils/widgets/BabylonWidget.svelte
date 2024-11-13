@@ -5,6 +5,7 @@
     import More from './More.svelte';
     import { onMount } from 'svelte';
     import * as BABYLON from 'babylonjs';
+    import * as GUI from 'babylonjs-gui';
 
     export let title: string = '';
     export let subtitle: string = '';
@@ -20,26 +21,55 @@
         // Create scene
         const scene = new BABYLON.Scene(engine);
 
-        // Create a camera and position it
-        const camera = new BABYLON.ArcRotateCamera(
-            "camera",
+        // Create a camera for the 3D model (right top)
+        const camera1 = new BABYLON.ArcRotateCamera(
+            "camera1",
             Math.PI / 2,
             Math.PI / 2,
             2,
             new BABYLON.Vector3(0, 0, 0),
             scene
         );
-        camera.attachControl(canvas, true);
+        camera1.viewport = new BABYLON.Viewport(0.5, 0.5, 0.5, 0.5); // Right top quarter
+        camera1.attachControl(canvas, true);
 
-        // Create a light
-        const light = new BABYLON.HemisphericLight(
-            "light",
+        // Create a light for the 3D model
+        const light1 = new BABYLON.HemisphericLight(
+            "light1",
             new BABYLON.Vector3(1, 1, 0),
             scene
         );
 
-        // Create a simple box
+        // Create a simple box for the 3D model
         const box = BABYLON.MeshBuilder.CreateBox("box", { size: 1 }, scene);
+
+        // Create cameras for other viewports (for images)
+        const camera2 = new BABYLON.FreeCamera("camera2", new BABYLON.Vector3(0, 0, -10), scene);
+        camera2.viewport = new BABYLON.Viewport(0, 0.5, 0.5, 0.5); // Left top quarter
+
+        const camera3 = new BABYLON.FreeCamera("camera3", new BABYLON.Vector3(0, 0, -10), scene);
+        camera3.viewport = new BABYLON.Viewport(0, 0, 0.5, 0.5); // Left bottom quarter
+
+        const camera4 = new BABYLON.FreeCamera("camera4", new BABYLON.Vector3(0, 0, -10), scene);
+        camera4.viewport = new BABYLON.Viewport(0.5, 0, 0.5, 0.5); // Right bottom quarter
+
+        // Load images into the viewports
+        function createImageOnViewport(camera, imageUrl) {
+            const plane = BABYLON.MeshBuilder.CreatePlane("plane", { size: 2 }, scene);
+            plane.position = new BABYLON.Vector3(0, 0, 0);
+
+            const texture = GUI.AdvancedDynamicTexture.CreateForMesh(plane);
+            const image = new GUI.Image("image", imageUrl);
+            image.stretch = GUI.Image.STRETCH_UNIFORM;
+            texture.addControl(image);
+
+            camera.setTarget(BABYLON.Vector3.Zero());
+        }
+
+        // Add images to the viewports
+        createImageOnViewport(camera2, "/path/to/image1.png");
+        createImageOnViewport(camera3, "/path/to/image2.jpg");
+        createImageOnViewport(camera4, "/path/to/image3.png");
 
         // Render loop
         engine.runRenderLoop(() => {
@@ -83,11 +113,3 @@
         <More title="Sales Report" href="#top" />
     </div>
 </Card>
-
-<!--
-@component
-[Go to docs](https://flowbite-svelte-admin-dashboard.vercel.app/)
-## Props
-@prop export let title: string = '';
-@prop export let subtitle: string = '';
--->
