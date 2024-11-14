@@ -12,11 +12,9 @@
 
     let canvas: HTMLCanvasElement;
     let engine: BABYLON.Engine | null = null;
-    let box: BABYLON.Mesh | null = null;
     let isDragging = false;
     let lastMouseX = 0;
     let lastMouseY = 0;
-    let scaleFactor = 1;
 
     // BabylonPanel.js setup
     onMount(() => {
@@ -31,7 +29,7 @@
             "camera1",
             Math.PI / 4, // Angle around the Y-axis
             Math.PI / 4, // Angle above the ground
-            5,           // Distance from the target
+            15,          // Distance from the target
             new BABYLON.Vector3(0, 0, 0), // Target
             scene
         );
@@ -44,42 +42,60 @@
             scene
         );
 
-        // Create a simple box
-        box = BABYLON.MeshBuilder.CreateBox("box", { size: 1 }, scene);
+        // Define scene size and model size
+        const halfSceneSize = 5; // Scene boundary size (half the width/height)
+        const modelSize = 2;     // Each model's size
 
-        // Add mouse events to control box rotation and scaling
-        canvas.addEventListener("mousedown", (event) => {
-            isDragging = true;
-            lastMouseX = event.clientX;
-            lastMouseY = event.clientY;
-        });
+        // Create 4 different models and place them in different areas of the scene
+        const box1 = BABYLON.MeshBuilder.CreateBox("box1", { size: modelSize }, scene);
+        box1.position = new BABYLON.Vector3(-halfSceneSize / 2, 0, -halfSceneSize / 2); // Top-left
 
-        canvas.addEventListener("mousemove", (event) => {
-            if (isDragging && box) {
-                const deltaX = event.clientX - lastMouseX;
-                const deltaY = event.clientY - lastMouseY;
+        const sphere2 = BABYLON.MeshBuilder.CreateSphere("sphere2", { diameter: modelSize }, scene);
+        sphere2.position = new BABYLON.Vector3(halfSceneSize / 2, 0, -halfSceneSize / 2);  // Top-right
 
-                // Rotate the box based on mouse movement
-                box.rotation.y += deltaX * 0.01; // Horizontal drag rotates around Y-axis
-                box.rotation.x += deltaY * 0.01; // Vertical drag rotates around X-axis
+        const torus3 = BABYLON.MeshBuilder.CreateTorus("torus3", { diameter: modelSize, thickness: 0.5 }, scene);
+        torus3.position = new BABYLON.Vector3(-halfSceneSize / 2, 0, halfSceneSize / 2);  // Bottom-left
 
-                lastMouseX = event.clientX;
-                lastMouseY = event.clientY;
-            }
-        });
+        const cylinder4 = BABYLON.MeshBuilder.CreateCylinder("cylinder4", { height: modelSize, diameter: 1 }, scene);
+        cylinder4.position = new BABYLON.Vector3(halfSceneSize / 2, 0, halfSceneSize / 2);  // Bottom-right
 
-        canvas.addEventListener("mouseup", () => {
-            isDragging = false;
-        });
+        // Add clipping planes to each model to restrict display area
+        scene.onBeforeRenderObservable.add(() => {
+            // Clipping planes for box1 (Top-left)
+            box1.material = new BABYLON.StandardMaterial("box1Mat", scene);
+            box1.material.clippingPlanes = [
+                new BABYLON.Plane(1, 0, 0, halfSceneSize / 2),   // Right boundary
+                new BABYLON.Plane(-1, 0, 0, halfSceneSize / 2),  // Left boundary
+                new BABYLON.Plane(0, 0, 1, halfSceneSize / 2),   // Bottom boundary
+                new BABYLON.Plane(0, 0, -1, halfSceneSize / 2),  // Top boundary
+            ];
 
-        canvas.addEventListener("wheel", (event) => {
-            if (box) {
-                // Scale the box based on wheel movement
-                scaleFactor += event.deltaY * -0.001; // Invert deltaY for natural zoom
-                scaleFactor = Math.max(0.1, Math.min(5, scaleFactor)); // Clamp scale factor
+            // Clipping planes for sphere2 (Top-right)
+            sphere2.material = new BABYLON.StandardMaterial("sphere2Mat", scene);
+            sphere2.material.clippingPlanes = [
+                new BABYLON.Plane(1, 0, 0, -halfSceneSize / 2),  // Right boundary
+                new BABYLON.Plane(-1, 0, 0, -halfSceneSize / 2), // Left boundary
+                new BABYLON.Plane(0, 0, 1, halfSceneSize / 2),   // Bottom boundary
+                new BABYLON.Plane(0, 0, -1, halfSceneSize / 2),  // Top boundary
+            ];
 
-                box.scaling = new BABYLON.Vector3(scaleFactor, scaleFactor, scaleFactor);
-            }
+            // Clipping planes for torus3 (Bottom-left)
+            torus3.material = new BABYLON.StandardMaterial("torus3Mat", scene);
+            torus3.material.clippingPlanes = [
+                new BABYLON.Plane(1, 0, 0, halfSceneSize / 2),   // Right boundary
+                new BABYLON.Plane(-1, 0, 0, halfSceneSize / 2),  // Left boundary
+                new BABYLON.Plane(0, 0, 1, -halfSceneSize / 2),  // Bottom boundary
+                new BABYLON.Plane(0, 0, -1, -halfSceneSize / 2), // Top boundary
+            ];
+
+            // Clipping planes for cylinder4 (Bottom-right)
+            cylinder4.material = new BABYLON.StandardMaterial("cylinder4Mat", scene);
+            cylinder4.material.clippingPlanes = [
+                new BABYLON.Plane(1, 0, 0, -halfSceneSize / 2),  // Right boundary
+                new BABYLON.Plane(-1, 0, 0, -halfSceneSize / 2), // Left boundary
+                new BABYLON.Plane(0, 0, 1, -halfSceneSize / 2),  // Bottom boundary
+                new BABYLON.Plane(0, 0, -1, -halfSceneSize / 2), // Top boundary
+            ];
         });
 
         // Render loop
