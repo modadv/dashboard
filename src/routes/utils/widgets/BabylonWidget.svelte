@@ -12,6 +12,11 @@
 
     let canvas: HTMLCanvasElement;
     let engine: BABYLON.Engine | null = null;
+    let box: BABYLON.Mesh | null = null;
+    let isDragging = false;
+    let lastMouseX = 0;
+    let lastMouseY = 0;
+    let scaleFactor = 1;
 
     // BabylonPanel.js setup
     onMount(() => {
@@ -21,27 +26,61 @@
         // Create scene
         const scene = new BABYLON.Scene(engine);
 
-        // Create a camera for the 3D model (right top)
+        // Create a fixed camera
         const camera1 = new BABYLON.ArcRotateCamera(
             "camera1",
-            Math.PI / 2,
-            Math.PI / 2,
-            2,
-            new BABYLON.Vector3(0, 0, 0),
+            Math.PI / 4, // Angle around the Y-axis
+            Math.PI / 4, // Angle above the ground
+            5,           // Distance from the target
+            new BABYLON.Vector3(0, 0, 0), // Target
             scene
         );
-        camera1.viewport = new BABYLON.Viewport(0.0, 0.0, 1.0, 1.0); // Right top quarter
-        camera1.attachControl(canvas, true);
+        camera1.attachControl(canvas, false); // Disable control (fixed view)
 
-        // Create a light for the 3D model
+        // Create a light
         const light1 = new BABYLON.HemisphericLight(
             "light1",
             new BABYLON.Vector3(1, 1, 0),
             scene
         );
 
-        // Create a simple box for the 3D model
-        const box = BABYLON.MeshBuilder.CreateBox("box", { size: 1 }, scene);
+        // Create a simple box
+        box = BABYLON.MeshBuilder.CreateBox("box", { size: 1 }, scene);
+
+        // Add mouse events to control box rotation and scaling
+        canvas.addEventListener("mousedown", (event) => {
+            isDragging = true;
+            lastMouseX = event.clientX;
+            lastMouseY = event.clientY;
+        });
+
+        canvas.addEventListener("mousemove", (event) => {
+            if (isDragging && box) {
+                const deltaX = event.clientX - lastMouseX;
+                const deltaY = event.clientY - lastMouseY;
+
+                // Rotate the box based on mouse movement
+                box.rotation.y += deltaX * 0.01; // Horizontal drag rotates around Y-axis
+                box.rotation.x += deltaY * 0.01; // Vertical drag rotates around X-axis
+
+                lastMouseX = event.clientX;
+                lastMouseY = event.clientY;
+            }
+        });
+
+        canvas.addEventListener("mouseup", () => {
+            isDragging = false;
+        });
+
+        canvas.addEventListener("wheel", (event) => {
+            if (box) {
+                // Scale the box based on wheel movement
+                scaleFactor += event.deltaY * -0.001; // Invert deltaY for natural zoom
+                scaleFactor = Math.max(0.1, Math.min(5, scaleFactor)); // Clamp scale factor
+
+                box.scaling = new BABYLON.Vector3(scaleFactor, scaleFactor, scaleFactor);
+            }
+        });
 
         // Render loop
         engine.runRenderLoop(() => {
