@@ -5,6 +5,7 @@
     import More from './More.svelte';
     import { onMount } from 'svelte';
     import * as BABYLON from 'babylonjs';
+    import * as GUI from 'babylonjs-gui';
 
     export let title: string = '';
     export let subtitle: string = '';
@@ -17,7 +18,7 @@
     let selectedMesh: BABYLON.Mesh | null = null;
     let scaleFactor = 1;
 
-    // BabylonPanel.js setup
+    // Babylon setup
     onMount(() => {
         // Create BabylonJS engine
         engine = new BABYLON.Engine(canvas, true);
@@ -25,13 +26,13 @@
         // Create scene
         const scene = new BABYLON.Scene(engine);
 
-        // Create a fixed camera (disable user control)
+        // Create a fixed UniversalCamera
         const camera1 = new BABYLON.UniversalCamera(
             "camera1",
-            new BABYLON.Vector3(5, 5, 10),
+            new BABYLON.Vector3(10, 10, 10), // Camera position
             scene
         );
-        camera1.setTarget(new BABYLON.Vector3(0, 0, 0));
+        camera1.setTarget(BABYLON.Vector3.Zero()); // Look at the center of the scene
 
         // Create a light
         const light1 = new BABYLON.HemisphericLight(
@@ -59,7 +60,7 @@
 
         // Add clipping planes to each model to restrict display area
         scene.onBeforeRenderObservable.add(() => {
-            // Clipping planes for box1 (Top-left)
+            // Set clipping planes for each mesh (same as before)
             box1.material = new BABYLON.StandardMaterial("box1Mat", scene);
             box1.material.clippingPlanes = [
                 new BABYLON.Plane(1, 0, 0, halfSceneSize / 2),   // Right boundary
@@ -68,7 +69,6 @@
                 new BABYLON.Plane(0, 0, -1, halfSceneSize / 2),  // Top boundary
             ];
 
-            // Clipping planes for sphere2 (Top-right)
             sphere2.material = new BABYLON.StandardMaterial("sphere2Mat", scene);
             sphere2.material.clippingPlanes = [
                 new BABYLON.Plane(1, 0, 0, -halfSceneSize / 2),  // Right boundary
@@ -77,7 +77,6 @@
                 new BABYLON.Plane(0, 0, -1, halfSceneSize / 2),  // Top boundary
             ];
 
-            // Clipping planes for torus3 (Bottom-left)
             torus3.material = new BABYLON.StandardMaterial("torus3Mat", scene);
             torus3.material.clippingPlanes = [
                 new BABYLON.Plane(1, 0, 0, halfSceneSize / 2),   // Right boundary
@@ -86,7 +85,6 @@
                 new BABYLON.Plane(0, 0, -1, -halfSceneSize / 2), // Top boundary
             ];
 
-            // Clipping planes for cylinder4 (Bottom-right)
             cylinder4.material = new BABYLON.StandardMaterial("cylinder4Mat", scene);
             cylinder4.material.clippingPlanes = [
                 new BABYLON.Plane(1, 0, 0, -halfSceneSize / 2),  // Right boundary
@@ -102,8 +100,11 @@
             lastMouseX = event.clientX;
             lastMouseY = event.clientY;
 
-            // Detect which object is clicked (for simplicity here, assign to box1)
-            selectedMesh = box1; // You can add detection logic for clicking different objects
+            // Perform a pick to detect which mesh is clicked
+            const pickResult = scene.pick(event.clientX, event.clientY);
+            if (pickResult && pickResult.hit) {
+                selectedMesh = pickResult.pickedMesh as BABYLON.Mesh;
+            }
         });
 
         canvas.addEventListener("mousemove", (event) => {
