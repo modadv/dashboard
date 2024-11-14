@@ -5,7 +5,6 @@
     import More from './More.svelte';
     import { onMount } from 'svelte';
     import * as BABYLON from 'babylonjs';
-    import * as GUI from 'babylonjs-gui';
 
     export let title: string = '';
     export let subtitle: string = '';
@@ -15,6 +14,8 @@
     let isDragging = false;
     let lastMouseX = 0;
     let lastMouseY = 0;
+    let selectedMesh: BABYLON.Mesh | null = null;
+    let scaleFactor = 1;
 
     // BabylonPanel.js setup
     onMount(() => {
@@ -24,16 +25,13 @@
         // Create scene
         const scene = new BABYLON.Scene(engine);
 
-        // Create a fixed camera
-        const camera1 = new BABYLON.ArcRotateCamera(
+        // Create a fixed camera (disable user control)
+        const camera1 = new BABYLON.UniversalCamera(
             "camera1",
-            Math.PI / 4, // Angle around the Y-axis
-            Math.PI / 4, // Angle above the ground
-            15,          // Distance from the target
-            new BABYLON.Vector3(0, 0, 0), // Target
+            new BABYLON.Vector3(5, 5, 10),
             scene
         );
-        camera1.attachControl(canvas, false); // Disable control (fixed view)
+        camera1.setTarget(new BABYLON.Vector3(0, 0, 0));
 
         // Create a light
         const light1 = new BABYLON.HemisphericLight(
@@ -96,6 +94,45 @@
                 new BABYLON.Plane(0, 0, 1, -halfSceneSize / 2),  // Bottom boundary
                 new BABYLON.Plane(0, 0, -1, -halfSceneSize / 2), // Top boundary
             ];
+        });
+
+        // Mouse event handling for object interaction (rotation and scaling)
+        canvas.addEventListener("mousedown", (event) => {
+            isDragging = true;
+            lastMouseX = event.clientX;
+            lastMouseY = event.clientY;
+
+            // Detect which object is clicked (for simplicity here, assign to box1)
+            selectedMesh = box1; // You can add detection logic for clicking different objects
+        });
+
+        canvas.addEventListener("mousemove", (event) => {
+            if (isDragging && selectedMesh) {
+                const deltaX = event.clientX - lastMouseX;
+                const deltaY = event.clientY - lastMouseY;
+
+                // Rotate the selected mesh based on mouse movement
+                selectedMesh.rotation.y += deltaX * 0.01; // Horizontal drag rotates around Y-axis
+                selectedMesh.rotation.x += deltaY * 0.01; // Vertical drag rotates around X-axis
+
+                lastMouseX = event.clientX;
+                lastMouseY = event.clientY;
+            }
+        });
+
+        canvas.addEventListener("mouseup", () => {
+            isDragging = false;
+            selectedMesh = null;
+        });
+
+        canvas.addEventListener("wheel", (event) => {
+            if (selectedMesh) {
+                // Scale the selected mesh based on wheel movement
+                scaleFactor += event.deltaY * -0.001; // Invert deltaY for natural zoom
+                scaleFactor = Math.max(0.1, Math.min(5, scaleFactor)); // Clamp scale factor
+
+                selectedMesh.scaling = new BABYLON.Vector3(scaleFactor, scaleFactor, scaleFactor);
+            }
         });
 
         // Render loop
