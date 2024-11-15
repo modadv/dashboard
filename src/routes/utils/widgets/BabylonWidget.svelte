@@ -5,7 +5,6 @@
     import More from './More.svelte';
     import { onMount } from 'svelte';
     import * as BABYLON from 'babylonjs';
-    import * as GUI from 'babylonjs-gui';
 
     export let title: string = '';
     export let subtitle: string = '';
@@ -27,12 +26,12 @@
         const scene = new BABYLON.Scene(engine);
 
         // Create a fixed UniversalCamera
-        const camera1 = new BABYLON.UniversalCamera(
-            "camera1",
+        const camera = new BABYLON.UniversalCamera(
+            "camera",
             new BABYLON.Vector3(10, 10, 10), // Camera position
             scene
         );
-        camera1.setTarget(BABYLON.Vector3.Zero()); // Look at the center of the scene
+        camera.setTarget(BABYLON.Vector3.Zero()); // Look at the center of the scene
 
         // Create a light
         const light1 = new BABYLON.HemisphericLight(
@@ -47,6 +46,33 @@
 
         // Create 4 different models and place them in different areas of the scene
         const box1 = BABYLON.MeshBuilder.CreateBox("box1", { size: modelSize }, scene);
+        box1.isPickable = true;
+
+        let rotating = false;
+        const rightDir = new BABYLON.Vector3();
+        const upDir = new BABYLON.Vector3();
+        const sensitivity = 0.005;
+        scene.onPointerObservable.add((pointerInfo) => {
+            if (pointerInfo.pickInfo) {
+                if (pointerInfo.type === 1) {
+                    if (pointerInfo.pickInfo.pickedMesh === box1) {
+                        if (pointerInfo.type === 1) {
+                            rotating = true;
+                        }
+                    }
+                } else if (pointerInfo.type === 2 && rotating) {
+                    rotating = false;
+                } else if (pointerInfo.type === 4 && rotating) {
+                    const matrix = camera.getWorldMatrix();
+                    rightDir.copyFromFloats(matrix.m[0], matrix.m[1], matrix.m[2]);
+                    upDir.copyFromFloats(matrix.m[4], matrix.m[5], matrix.m[6]);
+
+                    box1.rotateAround(box1.position, rightDir, pointerInfo.event.movementY * -1 * sensitivity);
+                    box1.rotateAround(box1.position, upDir, pointerInfo.event.movementX * -1 * sensitivity);
+                }
+            }
+        });
+
         box1.position = new BABYLON.Vector3(-halfSceneSize / 2, 0, -halfSceneSize / 2); // Top-left
 
         const sphere2 = BABYLON.MeshBuilder.CreateSphere("sphere2", { diameter: modelSize }, scene);
