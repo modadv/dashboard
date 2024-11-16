@@ -28,7 +28,7 @@
         // Create a fixed UniversalCamera
         const camera = new BABYLON.UniversalCamera(
             "camera",
-            new BABYLON.Vector3(10, 10, 10), // Camera position
+            new BABYLON.Vector3(0, 20, 0), // Camera position
             scene
         );
         camera.setTarget(BABYLON.Vector3.Zero()); // Look at the center of the scene
@@ -85,39 +85,46 @@
         cylinder4.position = new BABYLON.Vector3(halfSceneSize / 2, 0, halfSceneSize / 2);  // Bottom-right
 
         // Add clipping planes to each model to restrict display area
+        // 初始化材质和裁剪平面
+        const box1Material = new BABYLON.StandardMaterial("box1Mat", scene);
+        box1Material.clippingPlanes = [
+            new BABYLON.Plane(1, 0, 0, halfSceneSize / 2),   // Right boundary
+            new BABYLON.Plane(-1, 0, 0, halfSceneSize / 2),  // Left boundary
+            new BABYLON.Plane(0, 0, 1, halfSceneSize / 2),   // Bottom boundary
+            new BABYLON.Plane(0, 0, -1, halfSceneSize / 2),  // Top boundary
+        ];
+        box1.material = box1Material;
+
+        const sphere2Material = new BABYLON.StandardMaterial("sphere2Mat", scene);
+        sphere2Material.clippingPlanes = [
+            new BABYLON.Plane(1, 0, 0, -halfSceneSize / 2),  // Right boundary
+            new BABYLON.Plane(-1, 0, 0, -halfSceneSize / 2), // Left boundary
+            new BABYLON.Plane(0, 0, 1, halfSceneSize / 2),   // Bottom boundary
+            new BABYLON.Plane(0, 0, -1, halfSceneSize / 2),  // Top boundary
+        ];
+        sphere2.material = sphere2Material;
+
+        const torus3Material = new BABYLON.StandardMaterial("torus3Mat", scene);
+        torus3Material.clippingPlanes = [
+            new BABYLON.Plane(1, 0, 0, halfSceneSize / 2),   // Right boundary
+            new BABYLON.Plane(-1, 0, 0, halfSceneSize / 2),  // Left boundary
+            new BABYLON.Plane(0, 0, 1, -halfSceneSize / 2),  // Bottom boundary
+            new BABYLON.Plane(0, 0, -1, -halfSceneSize / 2), // Top boundary
+        ];
+        torus3.material = torus3Material;
+
+        const cylinder4Material = new BABYLON.StandardMaterial("cylinder4Mat", scene);
+        cylinder4Material.clippingPlanes = [
+            new BABYLON.Plane(1, 0, 0, -halfSceneSize / 2),  // Right boundary
+            new BABYLON.Plane(-1, 0, 0, -halfSceneSize / 2), // Left boundary
+            new BABYLON.Plane(0, 0, 1, -halfSceneSize / 2),  // Bottom boundary
+            new BABYLON.Plane(0, 0, -1, -halfSceneSize / 2), // Top boundary
+        ];
+        cylinder4.material = cylinder4Material;
+
+        // 如果你需要在每一帧做其他逻辑操作，可以继续使用 onBeforeRenderObservable
         scene.onBeforeRenderObservable.add(() => {
-            // Set clipping planes for each mesh (same as before)
-            box1.material = new BABYLON.StandardMaterial("box1Mat", scene);
-            box1.material.clippingPlanes = [
-                new BABYLON.Plane(1, 0, 0, halfSceneSize / 2),   // Right boundary
-                new BABYLON.Plane(-1, 0, 0, halfSceneSize / 2),  // Left boundary
-                new BABYLON.Plane(0, 0, 1, halfSceneSize / 2),   // Bottom boundary
-                new BABYLON.Plane(0, 0, -1, halfSceneSize / 2),  // Top boundary
-            ];
-
-            sphere2.material = new BABYLON.StandardMaterial("sphere2Mat", scene);
-            sphere2.material.clippingPlanes = [
-                new BABYLON.Plane(1, 0, 0, -halfSceneSize / 2),  // Right boundary
-                new BABYLON.Plane(-1, 0, 0, -halfSceneSize / 2), // Left boundary
-                new BABYLON.Plane(0, 0, 1, halfSceneSize / 2),   // Bottom boundary
-                new BABYLON.Plane(0, 0, -1, halfSceneSize / 2),  // Top boundary
-            ];
-
-            torus3.material = new BABYLON.StandardMaterial("torus3Mat", scene);
-            torus3.material.clippingPlanes = [
-                new BABYLON.Plane(1, 0, 0, halfSceneSize / 2),   // Right boundary
-                new BABYLON.Plane(-1, 0, 0, halfSceneSize / 2),  // Left boundary
-                new BABYLON.Plane(0, 0, 1, -halfSceneSize / 2),  // Bottom boundary
-                new BABYLON.Plane(0, 0, -1, -halfSceneSize / 2), // Top boundary
-            ];
-
-            cylinder4.material = new BABYLON.StandardMaterial("cylinder4Mat", scene);
-            cylinder4.material.clippingPlanes = [
-                new BABYLON.Plane(1, 0, 0, -halfSceneSize / 2),  // Right boundary
-                new BABYLON.Plane(-1, 0, 0, -halfSceneSize / 2), // Left boundary
-                new BABYLON.Plane(0, 0, 1, -halfSceneSize / 2),  // Bottom boundary
-                new BABYLON.Plane(0, 0, -1, -halfSceneSize / 2), // Top boundary
-            ];
+            // 在这里执行需要在每一帧做的其他操作
         });
 
         // Mouse event handling for object interaction (rotation and scaling)
