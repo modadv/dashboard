@@ -4,7 +4,9 @@
     import LastRange from './LastRange.svelte';
     import More from './More.svelte';
     import { onMount } from 'svelte';
-    import * as BABYLON from 'babylonjs';
+    import * as BABYLON from '@babylonjs/core';
+    import * as BABYLON_GUI from '@babylonjs/gui';
+    import '@babylonjs/loaders';
 
     export let title: string = '';
     export let subtitle: string = '';
@@ -41,12 +43,25 @@
 
         // Create 4 different models and place them in different areas of the scene
         const box1 = BABYLON.MeshBuilder.CreateBox("box1", { size: modelSize }, scene);
-        box1.position = new BABYLON.Vector3(-halfSceneSize / 2, 0, -halfSceneSize / 2); // Top-left
+        box1.position = new BABYLON.Vector3(0, 0, -halfSceneSize / 2); // Top-left
         box1.isPickable = true;
 
-        const sphere2 = BABYLON.MeshBuilder.CreateSphere("sphere2", { diameter: modelSize }, scene);
-        sphere2.position = new BABYLON.Vector3(halfSceneSize / 2, 0, -halfSceneSize / 2);  // Top-right
-        sphere2.isPickable = true;
+        let advancedTexture = BABYLON
+
+        let materialPlane = new BABYLON.StandardMaterial("board2Mat", scene);
+        materialPlane.diffuseTexture = new BABYLON.Texture("images/board.jpg", scene);
+        materialPlane.specularColor = new BABYLON.Color3(0, 0, 0);
+        materialPlane.backFaceCulling = false; // always show the front and the back of an element
+
+        let boardPlane = BABYLON.Mesh.CreatePlane("boardPlane", 120, scene);
+        boardPlane.position = new BABYLON.Vector3(halfSceneSize / 2, 0, -halfSceneSize / 2);  // Top-right
+        boardPlane.rotation.x = Math.PI / 2;
+        boardPlane.material = materialPlane;
+        boardPlane.isPickable = true;
+
+        // const sphere2 = BABYLON.MeshBuilder.CreateSphere("sphere2", { diameter: modelSize }, scene);
+        // sphere2.position = new BABYLON.Vector3(halfSceneSize / 2, 0, -halfSceneSize / 2);  // Top-right
+        // sphere2.isPickable = true;
 
         const torus3 = BABYLON.MeshBuilder.CreateTorus("torus3", { diameter: modelSize, thickness: 0.5 }, scene);
         torus3.position = new BABYLON.Vector3(-halfSceneSize / 2, 0, halfSceneSize / 2);  // Bottom-left
@@ -84,7 +99,7 @@
                         break;
 
                     case BABYLON.PointerEventTypes.POINTERMOVE:
-                        if (rotating && selectedMesh) {
+                        if (rotating && selectedMesh && selectedMesh === box1) {
                             const matrix = camera.getWorldMatrix();
                             rightDir.copyFromFloats(matrix.m[0], matrix.m[1], matrix.m[2]);
                             upDir.copyFromFloats(matrix.m[4], matrix.m[5], matrix.m[6]);
@@ -102,7 +117,7 @@
                                 const wheelEvent: WheelEvent = pointerInfo.event as WheelEvent;
                                 // Scale the selected mesh based on wheel movement
                                 scaleFactor += wheelEvent.deltaY * -0.001; // Invert deltaY for natural zoom
-                                scaleFactor = Math.max(0.1, Math.min(5, scaleFactor)); // Clamp scale factor
+                                scaleFactor = Math.max(0.1, Math.min(2, scaleFactor)); // Clamp scale factor
 
                                 hoveredMesh.scaling = new BABYLON.Vector3(scaleFactor, scaleFactor, scaleFactor);
                             }
@@ -123,14 +138,14 @@
         ];
         box1.material = box1Material;
 
-        const sphere2Material = new BABYLON.StandardMaterial("sphere2Mat", scene);
-        sphere2Material.clippingPlanes = [
+        // const materialPlane = new BABYLON.StandardMaterial("sphere2Mat", scene);
+        materialPlane.clippingPlanes = [
             new BABYLON.Plane(1, 0, 0, -halfSceneSize / 2),  // Right boundary
             new BABYLON.Plane(-1, 0, 0, -halfSceneSize / 2), // Left boundary
             new BABYLON.Plane(0, 0, 1, halfSceneSize / 2),   // Bottom boundary
             new BABYLON.Plane(0, 0, -1, halfSceneSize / 2),  // Top boundary
         ];
-        sphere2.material = sphere2Material;
+        boardPlane.material = materialPlane;
 
         const torus3Material = new BABYLON.StandardMaterial("torus3Mat", scene);
         torus3Material.clippingPlanes = [
