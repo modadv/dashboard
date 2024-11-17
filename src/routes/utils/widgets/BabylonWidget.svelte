@@ -160,12 +160,17 @@
         });
 
         canvas.addEventListener("wheel", (event) => {
-            if (selectedMesh) {
-                // Scale the selected mesh based on wheel movement
-                scaleFactor += event.deltaY * -0.001; // Invert deltaY for natural zoom
-                scaleFactor = Math.max(0.1, Math.min(5, scaleFactor)); // Clamp scale factor
+            event.preventDefault(); // Prevent scrolling the page
+            const pickResult = scene.pick(scene.pointerX, scene.pointerY);
+            if (pickResult.hit && pickResult.pickedMesh) {
+                let hoveredMesh = pickResult.pickedMesh;
+                if (hoveredMesh) {
+                    // Scale the selected mesh based on wheel movement
+                    scaleFactor += event.deltaY * -0.001; // Invert deltaY for natural zoom
+                    scaleFactor = Math.max(0.1, Math.min(5, scaleFactor)); // Clamp scale factor
 
-                selectedMesh.scaling = new BABYLON.Vector3(scaleFactor, scaleFactor, scaleFactor);
+                    hoveredMesh.scaling = new BABYLON.Vector3(scaleFactor, scaleFactor, scaleFactor);
+                }
             }
         });
 
