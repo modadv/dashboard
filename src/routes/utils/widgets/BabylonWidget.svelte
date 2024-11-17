@@ -11,11 +11,6 @@
 
     let canvas: HTMLCanvasElement;
     let engine: BABYLON.Engine | null = null;
-    let isDragging = false;
-    let lastMouseX = 0;
-    let lastMouseY = 0;
-    let selectedMesh: BABYLON.Mesh | null = null;
-    let scaleFactor = 1;
 
     // Babylon setup
     onMount(() => {
@@ -46,43 +41,76 @@
 
         // Create 4 different models and place them in different areas of the scene
         const box1 = BABYLON.MeshBuilder.CreateBox("box1", { size: modelSize }, scene);
+        box1.position = new BABYLON.Vector3(-halfSceneSize / 2, 0, -halfSceneSize / 2); // Top-left
         box1.isPickable = true;
+
+        const sphere2 = BABYLON.MeshBuilder.CreateSphere("sphere2", { diameter: modelSize }, scene);
+        sphere2.position = new BABYLON.Vector3(halfSceneSize / 2, 0, -halfSceneSize / 2);  // Top-right
+        sphere2.isPickable = true;
+
+        const torus3 = BABYLON.MeshBuilder.CreateTorus("torus3", { diameter: modelSize, thickness: 0.5 }, scene);
+        torus3.position = new BABYLON.Vector3(-halfSceneSize / 2, 0, halfSceneSize / 2);  // Bottom-left
+        torus3.isPickable = true;
+
+        const cylinder4 = BABYLON.MeshBuilder.CreateCylinder("cylinder4", { height: modelSize, diameter: 1 }, scene);
+        cylinder4.position = new BABYLON.Vector3(halfSceneSize / 2, 0, halfSceneSize / 2);  // Bottom-right
+        cylinder4.isPickable = true;
 
         let rotating = false;
         const rightDir = new BABYLON.Vector3();
         const upDir = new BABYLON.Vector3();
         const sensitivity = 0.005;
-        scene.onPointerObservable.add((pointerInfo) => {
-            if (pointerInfo.pickInfo) {
-                if (pointerInfo.type === 1) {
-                    if (pointerInfo.pickInfo.pickedMesh === box1) {
-                        if (pointerInfo.type === 1) {
-                            rotating = true;
-                        }
-                    }
-                } else if (pointerInfo.type === 2 && rotating) {
-                    rotating = false;
-                } else if (pointerInfo.type === 4 && rotating) {
-                    const matrix = camera.getWorldMatrix();
-                    rightDir.copyFromFloats(matrix.m[0], matrix.m[1], matrix.m[2]);
-                    upDir.copyFromFloats(matrix.m[4], matrix.m[5], matrix.m[6]);
+        let selectedMesh: BABYLON.Mesh|null;
+        let scaleFactor = 1;
 
-                    box1.rotateAround(box1.position, rightDir, pointerInfo.event.movementY * -1 * sensitivity);
-                    box1.rotateAround(box1.position, upDir, pointerInfo.event.movementX * -1 * sensitivity);
+        scene.onPointerObservable.add((pointerInfo: BABYLON.PointerInfo) => {
+            if (pointerInfo.pickInfo) {
+                pointerInfo.event.preventDefault(); // Prevent scrolling the page
+                switch (pointerInfo.type) {
+                    case BABYLON.PointerEventTypes.POINTERDOWN:
+                        if (pointerInfo.pickInfo.pickedMesh) {
+                            if (pointerInfo.type === 1) {
+                                selectedMesh = pointerInfo.pickInfo.pickedMesh as BABYLON.Mesh;
+                                rotating = true;
+                            }
+                        }
+                        break;
+
+                    case BABYLON.PointerEventTypes.POINTERUP:
+                        if (rotating) {
+                            rotating = false;
+                            selectedMesh = null;
+                        }
+                        break;
+
+                    case BABYLON.PointerEventTypes.POINTERMOVE:
+                        if (rotating && selectedMesh) {
+                            const matrix = camera.getWorldMatrix();
+                            rightDir.copyFromFloats(matrix.m[0], matrix.m[1], matrix.m[2]);
+                            upDir.copyFromFloats(matrix.m[4], matrix.m[5], matrix.m[6]);
+
+                            selectedMesh.rotateAround(selectedMesh.position, rightDir, pointerInfo.event.movementY * -1 * sensitivity);
+                            selectedMesh.rotateAround(selectedMesh.position, upDir, pointerInfo.event.movementX * -1 * sensitivity);
+                        }
+                        break;
+
+                    case BABYLON.PointerEventTypes.POINTERWHEEL:
+                        const pickResult = scene.pick(scene.pointerX, scene.pointerY);
+                        if (pickResult.hit && pickResult.pickedMesh) {
+                            let hoveredMesh = pickResult.pickedMesh;
+                            if (hoveredMesh) {
+                                const wheelEvent: WheelEvent = pointerInfo.event as WheelEvent;
+                                // Scale the selected mesh based on wheel movement
+                                scaleFactor += wheelEvent.deltaY * -0.001; // Invert deltaY for natural zoom
+                                scaleFactor = Math.max(0.1, Math.min(5, scaleFactor)); // Clamp scale factor
+
+                                hoveredMesh.scaling = new BABYLON.Vector3(scaleFactor, scaleFactor, scaleFactor);
+                            }
+                        }
+                        break;
                 }
             }
         });
-
-        box1.position = new BABYLON.Vector3(-halfSceneSize / 2, 0, -halfSceneSize / 2); // Top-left
-
-        const sphere2 = BABYLON.MeshBuilder.CreateSphere("sphere2", { diameter: modelSize }, scene);
-        sphere2.position = new BABYLON.Vector3(halfSceneSize / 2, 0, -halfSceneSize / 2);  // Top-right
-
-        const torus3 = BABYLON.MeshBuilder.CreateTorus("torus3", { diameter: modelSize, thickness: 0.5 }, scene);
-        torus3.position = new BABYLON.Vector3(-halfSceneSize / 2, 0, halfSceneSize / 2);  // Bottom-left
-
-        const cylinder4 = BABYLON.MeshBuilder.CreateCylinder("cylinder4", { height: modelSize, diameter: 1 }, scene);
-        cylinder4.position = new BABYLON.Vector3(halfSceneSize / 2, 0, halfSceneSize / 2);  // Bottom-right
 
         // Add clipping planes to each model to restrict display area
         // 初始化材质和裁剪平面
@@ -126,54 +154,6 @@
         scene.onBeforeRenderObservable.add(() => {
             // 在这里执行需要在每一帧做的其他操作
         });
-
-        // Mouse event handling for object interaction (rotation and scaling)
-        canvas.addEventListener("mousedown", (event) => {
-            isDragging = true;
-            lastMouseX = event.clientX;
-            lastMouseY = event.clientY;
-
-            // Perform a pick to detect which mesh is clicked
-            const pickResult = scene.pick(event.clientX, event.clientY);
-            if (pickResult && pickResult.hit) {
-                selectedMesh = pickResult.pickedMesh as BABYLON.Mesh;
-            }
-        });
-
-        canvas.addEventListener("mousemove", (event) => {
-            if (isDragging && selectedMesh) {
-                const deltaX = event.clientX - lastMouseX;
-                const deltaY = event.clientY - lastMouseY;
-
-                // Rotate the selected mesh based on mouse movement
-                selectedMesh.rotation.y += deltaX * 0.01; // Horizontal drag rotates around Y-axis
-                selectedMesh.rotation.x += deltaY * 0.01; // Vertical drag rotates around X-axis
-
-                lastMouseX = event.clientX;
-                lastMouseY = event.clientY;
-            }
-        });
-
-        canvas.addEventListener("mouseup", () => {
-            isDragging = false;
-            selectedMesh = null;
-        });
-
-        canvas.addEventListener("wheel", (event) => {
-            event.preventDefault(); // Prevent scrolling the page
-            const pickResult = scene.pick(scene.pointerX, scene.pointerY);
-            if (pickResult.hit && pickResult.pickedMesh) {
-                let hoveredMesh = pickResult.pickedMesh;
-                if (hoveredMesh) {
-                    // Scale the selected mesh based on wheel movement
-                    scaleFactor += event.deltaY * -0.001; // Invert deltaY for natural zoom
-                    scaleFactor = Math.max(0.1, Math.min(5, scaleFactor)); // Clamp scale factor
-
-                    hoveredMesh.scaling = new BABYLON.Vector3(scaleFactor, scaleFactor, scaleFactor);
-                }
-            }
-        });
-
         // Render loop
         engine.runRenderLoop(() => {
             scene.render();
