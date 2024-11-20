@@ -11,118 +11,125 @@
     export let subtitle: string = '';
 
     let canvas: HTMLCanvasElement;
-    let engine: BABYLON.Engine | null = null;
-    let boardPlane: BABYLON.Mesh | null = null; // Reference to the Plane
-    let initialPlaneWidth: number = 0;
-    let initialPlaneHeight: number = 0;
+    let engine: BABYLON.Engine;
+    let scene: BABYLON.Scene;
+    let boardPlane: BABYLON.Mesh;
     let imgAspectRatio: number = 1;
 
-    // Babylon setup
-    onMount(() => {
+    const IMAGE_URL = "images/board.jpg";
+    const CAMERA_POSITION = new BABYLON.Vector3(0, 0, -10);
+    const CAMERA_TARGET = BABYLON.Vector3.Zero();
+    const FOV = Math.PI / 4; // 45 degrees
+
+    /**
+     * Initializes the Babylon.js scene, camera, light, and plane.
+     */
+    function initializeBabylon() {
         engine = new BABYLON.Engine(canvas, true);
-        const scene = new BABYLON.Scene(engine);
+        scene = new BABYLON.Scene(engine);
 
-        // Create a Universal Camera
-        const camera = new BABYLON.UniversalCamera("camera", new BABYLON.Vector3(0, 20, 0), scene);
-        camera.setTarget(BABYLON.Vector3.Zero());
-        camera.fov = Math.PI / 4; // 45 degrees field of view
-        camera.attachControl(canvas, true);
+        // Setup Camera
+        const camera = new BABYLON.UniversalCamera("camera", CAMERA_POSITION, scene);
+        camera.setTarget(CAMERA_TARGET);
+        camera.fov = FOV;
 
-        // Add a Hemispheric Light
-        const light1 = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene );
+        // Add Hemispheric Light
+        const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, -15), scene);
 
-        // Create Material with Texture
-        const materialPlane = new BABYLON.StandardMaterial("board2Mat", scene);
-        const texture = new BABYLON.Texture("images/board.jpg", scene);
-        materialPlane.diffuseTexture = texture;
-        materialPlane.specularColor = new BABYLON.Color3(0, 0, 0);
-        materialPlane.backFaceCulling = false;
+        // Optional: Add Axes for debugging
+        new BABYLON.AxesViewer(scene, 2);
 
-        // Load the image to get its aspect ratio
-        const img = new Image();
-        img.src = "images/board.jpg";
-        img.onload = () => {
-            imgAspectRatio = img.width / img.height;
+        // Load Texture and Create Plane
+        const material = new BABYLON.StandardMaterial("boardMat", scene);
+        const texture = new BABYLON.Texture(IMAGE_URL, scene, false, false, BABYLON.Texture.TRILINEAR_SAMPLINGMODE, () => {
+            // On Texture Load
+            imgAspectRatio = texture.getBaseSize().width / texture.getBaseSize().height;
+            material.diffuseTexture = texture;
+            material.specularColor = new BABYLON.Color3(0, 0, 0);
+            material.backFaceCulling = false;
 
-            // Calculate camera parameters
-            const distance = BABYLON.Vector3.Distance(camera.position, new BABYLON.Vector3(0, 0, 0));
-            const fov = camera.fov; // Vertical FOV
+            createPlane();
+        });
 
-            // Calculate the height of the view at the Plane's distance
-            const viewHeight = 2 * distance * Math.tan(fov / 2);
-            const engineWidth = engine.getRenderingCanvasClientRect().width;
-            const engineHeight = engine.getRenderingCanvasClientRect().height;
-            const aspectRatio = engineWidth / engineHeight;
-            const viewWidth = viewHeight * aspectRatio;
-
-            // To occupy 1/4 of the canvas area, set Plane size to half the view dimensions
-            let planeHeight = viewHeight / 2;
-            let planeWidth = planeHeight * imgAspectRatio;
-
-            // Adjust Plane size based on aspect ratio
-            if (planeWidth > viewWidth / 2) {
-                planeWidth = viewWidth / 2;
-                planeHeight = planeWidth / imgAspectRatio;
-            }
-
-            initialPlaneWidth = planeWidth;
-            initialPlaneHeight = planeHeight;
-
-            // Create the Plane with calculated dimensions
-            boardPlane = BABYLON.MeshBuilder.CreatePlane("boardPlane", {
-                width: planeWidth,
-                height: planeHeight
-            }, scene);
-
-            boardPlane.position = new BABYLON.Vector3(0, 0, 0);  // Center of the scene
-            boardPlane.rotation.x = Math.PI / 2;  // Rotate to lie horizontally
-            boardPlane.material = materialPlane;
-            boardPlane.isPickable = true;
-        };
-
-        // Render loop
+        // Render Loop
         engine.runRenderLoop(() => {
             scene.render();
         });
 
-        // Resize the scene if the window is resized
-        const resizeListener = () => {
-            if (engine && boardPlane) {
-                engine.resize();
+        // Handle Resize
+        window.addEventListener("resize", handleResize);
+    }
 
-                // Recalculate view dimensions
-                const distance = BABYLON.Vector3.Distance(camera.position, new BABYLON.Vector3(0, 0, 0));
-                const fov = camera.fov;
-                const viewHeight = 2 * distance * Math.tan(fov / 2);
-                const engineWidth = engine.getRenderingCanvasClientRect().width;
-                const engineHeight = engine.getRenderingCanvasClientRect().height;
-                const aspectRatio = engineWidth / engineHeight;
-                const viewWidth = viewHeight * aspectRatio;
+    /**
+     * Creates the plane mesh with appropriate scaling and positioning.
+     */
+    function createPlane() {
+        const camera = scene.activeCamera as BABYLON.UniversalCamera;
+        if (!camera) return;
 
-                // Recalculate Plane size
-                let newPlaneHeight = viewHeight / 2;
-                let newPlaneWidth = newPlaneHeight * imgAspectRatio;
+        // Calculate view dimensions at the plane's Z position
+        const distance = Math.abs(camera.position.z - CAMERA_TARGET.z);
+        const viewHeight = 2 * distance * Math.tan(camera.fov / 2);
+        const aspectRatio = engine.getRenderWidth() / engine.getRenderHeight();
+        const viewWidth = viewHeight * aspectRatio;
 
-                // Adjust based on aspect ratio
-                if (newPlaneWidth > viewWidth / 2) {
-                    newPlaneWidth = viewWidth / 2;
-                    newPlaneHeight = newPlaneWidth / imgAspectRatio;
-                }
+        // Desired plane size to occupy 1/4 of the canvas area
+        let planeHeight = viewHeight / 2;
+        let planeWidth = planeHeight * imgAspectRatio;
 
-                // Update Plane scaling
-                const scaleX = newPlaneWidth / initialPlaneWidth;
-                const scaleY = newPlaneHeight / initialPlaneHeight;
+        // Adjust if width exceeds half the view width
+        if (planeWidth > viewWidth / 2) {
+            planeWidth = viewWidth / 2;
+            planeHeight = planeWidth / imgAspectRatio;
+        }
 
-                boardPlane.scaling.x = scaleX;
-                boardPlane.scaling.y = scaleY;
-            }
-        };
+        boardPlane = BABYLON.MeshBuilder.CreatePlane("boardPlane", { width: planeWidth, height: planeHeight }, scene);
+        boardPlane.material = scene.getMaterialByName("boardMat") as BABYLON.StandardMaterial;
+        boardPlane.isPickable = true;
+        boardPlane.position = new BABYLON.Vector3(-viewWidth / 4, viewHeight / 4, 0);
+        // No rotation needed; plane lies in XY plane facing positive Z
+    }
 
-        window.addEventListener("resize", resizeListener);
+    /**
+     * Handles window resize to adjust camera and plane accordingly.
+     */
+    function handleResize() {
+        engine.resize();
 
-        // Clean up when the component unmounts
+        if (!boardPlane) return;
+
+        const camera = scene.activeCamera as BABYLON.UniversalCamera;
+        if (!camera) return;
+
+        // Recalculate view dimensions
+        const distance = Math.abs(camera.position.z - CAMERA_TARGET.z);
+        const viewHeight = 2 * distance * Math.tan(camera.fov / 2);
+        const aspectRatio = engine.getRenderWidth() / engine.getRenderHeight();
+        const viewWidth = viewHeight * aspectRatio;
+
+        // Recalculate Plane size
+        let planeHeight = viewHeight / 2;
+        let planeWidth = planeHeight * imgAspectRatio;
+
+        if (planeWidth > viewWidth / 2) {
+            planeWidth = viewWidth / 2;
+            planeHeight = planeWidth / imgAspectRatio;
+        }
+
+        // Update Plane scaling
+        boardPlane.scaling.x = planeWidth / boardPlane.scaling.x;
+        boardPlane.scaling.y = planeHeight / boardPlane.scaling.y;
+
+        // Update Plane position
+        boardPlane.position.set(-viewWidth / 4, viewHeight / 4, 0);
+    }
+
+    onMount(() => {
+        initializeBabylon();
+
+        // Cleanup on unmount
         return () => {
-            window.removeEventListener("resize", resizeListener);
+            window.removeEventListener("resize", handleResize);
             if (engine) {
                 engine.dispose();
             }
@@ -141,7 +148,7 @@
         <Change value={12.5} since="" class="justify-end font-medium" />
     </div>
 
-    <!-- BabylonPanel.js Canvas -->
+    <!-- Babylon.js Canvas -->
     <canvas bind:this={canvas} class="w-full h-full"></canvas>
 
     <div
