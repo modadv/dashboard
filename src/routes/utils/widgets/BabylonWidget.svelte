@@ -241,10 +241,10 @@
   
 	  if (delta < 0) {
 		// Zoom In
-		scale /= zoomFactor;
+		scale *= zoomFactor;
 	  } else {
 		// Zoom Out
-		scale *= zoomFactor;
+		scale /= zoomFactor;
 	  }
   
 	  // Clamp the scale
