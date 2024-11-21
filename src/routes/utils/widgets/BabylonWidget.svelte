@@ -27,8 +27,8 @@
 	let initialPlanePosition: BABYLON.Vector3;
   
 	// Variables for zoom limits
-	const MIN_SCALE = 0.5;
-	const MAX_SCALE = 3.0;
+	const MIN_SCALE = 0.01;
+	const MAX_SCALE = 50.0;
   
 	/**
 	 * Initializes the Babylon.js scene, camera, light, and plane.
