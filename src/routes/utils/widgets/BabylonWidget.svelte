@@ -16,6 +16,22 @@
 	let scene: BABYLON.Scene;
 	let sceneToRender: BABYLON.Scene;
 
+    const CAMERAQUAD4_POSITION = new BABYLON.Vector3(0.5, -0.5, -10);
+    const CAMERAQUAD4_TARGET = new BABYLON.Vector3(0.5, -0.5, 0);
+    
+    const CAMERAQUAD3_POSITION = new BABYLON.Vector3(-0.5, -0.5, -10);
+    const CAMERAQUAD3_TARGET = new BABYLON.Vector3(-0.5, -0.5, 0);
+    
+
+    const CAMERAQUAD2_POSITION = new BABYLON.Vector3(0.5, -0.5, -10);
+    const CAMERAQUAD2_TARGET = new BABYLON.Vector3(0.5, -0.5, 0);
+    
+
+    const CAMERAQUAD1_POSITION = new BABYLON.Vector3(0.5, -0.5, -10);
+    const CAMERAQUAD1_TARGET = new BABYLON.Vector3(0.5, -0.5, 0);
+
+    const FOV = Math.PI / 4; // 45 degrees
+
     const LAYER_MASK_LT = 0x00000001;
     const LAYER_MASK_RT = 0x00000010;
     const LAYER_MASK_LB = 0x00000100;
@@ -39,53 +55,40 @@
 
 		function createScene() {
 			let scene = new BABYLON.Scene(engine);
-			scene.clearColor = new BABYLON.Color4(0.5, 0.5, 0.5, 1);
+			scene.clearColor = new BABYLON.Color4(0.25, 0.25, 0.25, 1);
 
-			//camera 2
-			let cameraLT = new BABYLON.ArcRotateCamera(
-				'cameraLB',
-				(5 * Math.PI) / 8,
-				(5 * Math.PI) / 8,
-				30,
-				new BABYLON.Vector3(0, 2, 0),
-				scene
-			);
-			cameraLT.attachControl(canvas, true);
-			cameraLT.viewport = new BABYLON.Viewport(0, 0, 0.5, 0.5);
-            cameraLT.layerMask = LAYER_MASK_LT;
-			scene?.activeCameras?.push(cameraLT);
 
-			// camera 1
-			let cameraLB = new BABYLON.ArcRotateCamera(
-				'cameraLB',
-				(3 * Math.PI) / 8,
-				(3 * Math.PI) / 8,
-				15,
-				new BABYLON.Vector3(0, 2, 0),
-				scene
-			);
-			cameraLB.attachControl(canvas, true);
-			cameraLB.viewport = new BABYLON.Viewport(0, 0.5, 0.5, 0.5);
-            cameraLB.layerMask = LAYER_MASK_LB;
-			scene?.activeCameras?.push(cameraLB);
+            const cameraQuad3 = new BABYLON.UniversalCamera('cameraQuad3', CAMERAQUAD3_POSITION, scene);
+            cameraQuad3.setTarget(CAMERAQUAD3_TARGET);
+            cameraQuad3.fov = FOV;
+            cameraQuad3.maxZ = 1000;
 
-			//camera 3
-			let cameraRT = new BABYLON.ArcRotateCamera(
-				'cameraLB',
-				(5 * Math.PI) / 8,
-				(5 * Math.PI) / 8,
-				30,
-				new BABYLON.Vector3(0, 2, 0),
-				scene
-			);
-			cameraRT.attachControl(canvas, true);
-			cameraRT.viewport = new BABYLON.Viewport(0.5, 0, 0.5, 0.5);
-            cameraRT.layerMask = LAYER_MASK_RT;
-			scene?.activeCameras?.push(cameraRT);
+			cameraQuad3.viewport = new BABYLON.Viewport(0, 0, 0.5, 0.5);
+            cameraQuad3.layerMask = LAYER_MASK_LT;
+			scene?.activeCameras?.push(cameraQuad3);
+
+            const cameraQuad2 = new BABYLON.UniversalCamera('cameraQuad2', CAMERAQUAD3_POSITION, scene);
+            cameraQuad2.setTarget(CAMERAQUAD3_TARGET);
+            cameraQuad2.fov = FOV;
+            cameraQuad2.maxZ = 1000;
+
+			cameraQuad2.viewport = new BABYLON.Viewport(0, 0.5, 0.5, 0.5);
+            cameraQuad2.layerMask = LAYER_MASK_LB;
+			scene?.activeCameras?.push(cameraQuad2);
+
+
+            const cameraQuad4 = new BABYLON.UniversalCamera('cameraQuad4', CAMERAQUAD4_POSITION, scene);
+            cameraQuad4.setTarget(CAMERAQUAD4_TARGET);
+            cameraQuad4.fov = FOV;
+            cameraQuad4.maxZ = 1000;
+            
+			cameraQuad4.viewport = new BABYLON.Viewport(0.5, 0, 0.5, 0.5);
+            cameraQuad4.layerMask = LAYER_MASK_RT;
+			scene?.activeCameras?.push(cameraQuad4);
 
 			//camera 4
 			let cameraRB = new BABYLON.ArcRotateCamera(
-				'cameraLB',
+				'cameraQuad3',
 				(5 * Math.PI) / 8,
 				(5 * Math.PI) / 8,
 				30,
@@ -224,23 +227,34 @@
 </script>
 
 <Card size="xl" class="w-full max-w-none 2xl:col-span-2">
-	<div class="mb-4 flex items-center justify-between">
-		<div class="flex-shrink-0">
-			<Heading tag="h3" class="text-2xl">{title}</Heading>
-			<p class="text-base font-light text-gray-500 dark:text-gray-400">
-				{subtitle}
-			</p>
-		</div>
-		<Change value={12.5} since="" class="justify-end font-medium" />
-	</div>
+    <div class="mb-4 flex items-center justify-between">
+        <div class="flex-shrink-0">
+            <Heading tag="h3" class="text-2xl">Board View</Heading>
+            <p class="text-base font-light text-gray-500 dark:text-gray-400">
+                Component View
+            </p>
+        </div>
+        <Change value={12.5} since="" class="justify-end font-medium" />
+    </div>
 
-	<!-- Babylon.js Canvas -->
-	<canvas bind:this={canvas} class="h-full w-full"></canvas>
+    <!-- Babylon.js Canvas 和边框 -->
+    <div class="relative h-full w-full">
+        <canvas bind:this={canvas} class="h-full w-full"></canvas>
+        <!-- 四个 Viewport 边框 -->
+        <div class="absolute border-2 border-red-500" style="top: 0; left:0; width: 50%; height: 50%; box-sizing: border-box; pointer-events: none;"></div>
+        <div class="absolute border-2 border-red-500" style="top: 0; left:50%; width: 50%; height: 50%; box-sizing: border-box; pointer-events: none;"></div>
+        <div class="absolute border-2 border-red-500" style="top:50%; left:0; width: 50%; height: 50%; box-sizing: border-box; pointer-events: none;"></div>
+        <div class="absolute border-2 border-red-500" style="top:50%; left:50%; width: 50%; height: 50%; box-sizing: border-box; pointer-events: none;"></div>
+    </div>
 
-	<div
-		class="mt-4 flex items-center justify-between border-t border-gray-200 pt-3 sm:pt-6 dark:border-gray-700"
-	>
-		<LastRange />
-		<More title="Sales Report" href="#top" />
-	</div>
+    <div
+        class="mt-4 flex items-center justify-between border-t border-gray-200 pt-3 sm:pt-6 dark:border-gray-700"
+    >
+        <LastRange />
+        <More title="Sales Report" href="#top" />
+    </div>
 </Card>
+
+<style>
+    /* 可选：根据需要自定义样式 */
+</style>
