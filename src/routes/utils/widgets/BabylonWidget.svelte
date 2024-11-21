@@ -16,6 +16,10 @@
 	let scene: BABYLON.Scene;
 	let sceneToRender: BABYLON.Scene;
 
+    const LAYER_MASK_LT = 0x00000001;
+    const LAYER_MASK_RT = 0x00000010;
+    const LAYER_MASK_LB = 0x00000100;
+    const LAYER_MASK_RB = 0x00001000;
 	onMount(() => {
 		function startRenderLoop(engine: BABYLON.Engine, canvas: HTMLCanvasElement) {
 			engine.runRenderLoop(function () {
@@ -37,57 +41,61 @@
 			let scene = new BABYLON.Scene(engine);
 			scene.clearColor = new BABYLON.Color4(0.5, 0.5, 0.5, 1);
 
+			//camera 2
+			let cameraLT = new BABYLON.ArcRotateCamera(
+				'cameraLB',
+				(5 * Math.PI) / 8,
+				(5 * Math.PI) / 8,
+				30,
+				new BABYLON.Vector3(0, 2, 0),
+				scene
+			);
+			cameraLT.attachControl(canvas, true);
+			cameraLT.viewport = new BABYLON.Viewport(0, 0, 0.5, 0.5);
+            cameraLT.layerMask = LAYER_MASK_LT;
+			scene?.activeCameras?.push(cameraLT);
+
 			// camera 1
-			let camera1 = new BABYLON.ArcRotateCamera(
-				'camera1',
+			let cameraLB = new BABYLON.ArcRotateCamera(
+				'cameraLB',
 				(3 * Math.PI) / 8,
 				(3 * Math.PI) / 8,
 				15,
 				new BABYLON.Vector3(0, 2, 0),
 				scene
 			);
-			camera1.attachControl(canvas, true);
-			camera1.viewport = new BABYLON.Viewport(0, 0.5, 0.5, 0.5);
-			scene?.activeCameras?.push(camera1);
-
-			//camera 2
-			let camera2 = new BABYLON.ArcRotateCamera(
-				'camera1',
-				(5 * Math.PI) / 8,
-				(5 * Math.PI) / 8,
-				30,
-				new BABYLON.Vector3(0, 2, 0),
-				scene
-			);
-			camera2.attachControl(canvas, true);
-			camera2.viewport = new BABYLON.Viewport(0, 0, 0.5, 0.5);
-			scene?.activeCameras?.push(camera2);
+			cameraLB.attachControl(canvas, true);
+			cameraLB.viewport = new BABYLON.Viewport(0, 0.5, 0.5, 0.5);
+            cameraLB.layerMask = LAYER_MASK_LB;
+			scene?.activeCameras?.push(cameraLB);
 
 			//camera 3
-			let camera3 = new BABYLON.ArcRotateCamera(
-				'camera1',
+			let cameraRT = new BABYLON.ArcRotateCamera(
+				'cameraLB',
 				(5 * Math.PI) / 8,
 				(5 * Math.PI) / 8,
 				30,
 				new BABYLON.Vector3(0, 2, 0),
 				scene
 			);
-			camera3.attachControl(canvas, true);
-			camera3.viewport = new BABYLON.Viewport(0.5, 0, 0.5, 0.5);
-			scene?.activeCameras?.push(camera3);
+			cameraRT.attachControl(canvas, true);
+			cameraRT.viewport = new BABYLON.Viewport(0.5, 0, 0.5, 0.5);
+            cameraRT.layerMask = LAYER_MASK_RT;
+			scene?.activeCameras?.push(cameraRT);
 
 			//camera 4
-			let camera4 = new BABYLON.ArcRotateCamera(
-				'camera1',
+			let cameraRB = new BABYLON.ArcRotateCamera(
+				'cameraLB',
 				(5 * Math.PI) / 8,
 				(5 * Math.PI) / 8,
 				30,
 				new BABYLON.Vector3(0, 2, 0),
 				scene
 			);
-			camera4.attachControl(canvas, true);
-			camera4.viewport = new BABYLON.Viewport(0.5, 0.5, 0.5, 0.5);
-			scene?.activeCameras?.push(camera4);
+			cameraRB.attachControl(canvas, true);
+			cameraRB.viewport = new BABYLON.Viewport(0.5, 0.5, 0.5, 0.5);
+            cameraRB.layerMask = LAYER_MASK_RB;
+			scene?.activeCameras?.push(cameraRB);
 
 			// lights
 			let light1 = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(1, 0.5, 0), scene);
@@ -110,7 +118,7 @@
 				scene
 			);
 			box.material = new BABYLON.StandardMaterial('', scene);
-
+            box.layerMask = LAYER_MASK_RT;
 			/*******************End Box Creation*****************************************/
 
 			/***********Create and Draw Axes**************************************/
