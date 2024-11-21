@@ -15,7 +15,7 @@
 	let engine: BABYLON.Engine;
 	let scene: BABYLON.Scene;
 	let sceneToRender: BABYLON.Scene;
-    
+
 	onMount(() => {
 		function startRenderLoop(engine: BABYLON.Engine, canvas: HTMLCanvasElement) {
 			engine.runRenderLoop(function () {
@@ -80,6 +80,7 @@
             faceColors[3] = BABYLON.Color4.FromColor3(BABYLON.Color3.Black());
             faceColors[4] = BABYLON.Color4.FromColor3(BABYLON.Color3.Green());
             faceColors[5] = BABYLON.Color4.FromColor3(BABYLON.Color3.Yellow());
+            
 			let box = BABYLON.MeshBuilder.CreateBox(
 				'Box',
 				{ faceColors: faceColors, size: 2 },
@@ -103,43 +104,53 @@
 					return plane;
 				};
 
-				let axisX = BABYLON.Mesh.CreateLines(
+				let axisX = BABYLON.MeshBuilder.CreateLines(
 					'axisX',
-					[
-						BABYLON.Vector3.Zero(),
-						new BABYLON.Vector3(size, 0, 0),
-						new BABYLON.Vector3(size * 0.95, 0.05 * size, 0),
-						new BABYLON.Vector3(size, 0, 0),
-						new BABYLON.Vector3(size * 0.95, -0.05 * size, 0)
-					],
+					{
+                        points: [
+                            BABYLON.Vector3.Zero(),
+                            new BABYLON.Vector3(size, 0, 0),
+                            new BABYLON.Vector3(size * 0.95, 0.05 * size, 0),
+                            new BABYLON.Vector3(size, 0, 0),
+                            new BABYLON.Vector3(size * 0.95, -0.05 * size, 0)
+                        ]
+                    },
 					scene
 				);
 				axisX.color = new BABYLON.Color3(1, 0, 0);
 				let xChar = makeTextPlane('X', 'red', size / 10);
 				xChar.position = new BABYLON.Vector3(0.9 * size, -0.05 * size, 0);
-				let axisY = BABYLON.Mesh.CreateLines(
-					'axisY',
-					[
-						BABYLON.Vector3.Zero(),
-						new BABYLON.Vector3(0, size, 0),
-						new BABYLON.Vector3(-0.05 * size, size * 0.95, 0),
-						new BABYLON.Vector3(0, size, 0),
-						new BABYLON.Vector3(0.05 * size, size * 0.95, 0)
-					],
-					scene
-				);
+				
+                let axisY = BABYLON.MeshBuilder.CreateLines(
+                    "axisY",
+                    {
+                        points: [
+                            BABYLON.Vector3.Zero(),
+                            new BABYLON.Vector3(0, size, 0),
+                            new BABYLON.Vector3(-0.05 * size, size * 0.95, 0),
+                            new BABYLON.Vector3(0, size, 0),
+                            new BABYLON.Vector3(0.05 * size, size * 0.95, 0)
+                        ], // 定义线段的点列表
+                        updatable: false // 是否允许更新
+                    },
+                    scene // 场景
+                );
+
 				axisY.color = new BABYLON.Color3(0, 1, 0);
 				let yChar = makeTextPlane('Y', 'green', size / 10);
 				yChar.position = new BABYLON.Vector3(0, 0.9 * size, -0.05 * size);
-				let axisZ = BABYLON.Mesh.CreateLines(
+				let axisZ = BABYLON.MeshBuilder.CreateLines(
 					'axisZ',
-					[
-						BABYLON.Vector3.Zero(),
-						new BABYLON.Vector3(0, 0, size),
-						new BABYLON.Vector3(0, -0.05 * size, size * 0.95),
-						new BABYLON.Vector3(0, 0, size),
-						new BABYLON.Vector3(0, 0.05 * size, size * 0.95)
-					],
+					{
+                        points: [
+                            BABYLON.Vector3.Zero(),
+                            new BABYLON.Vector3(0, 0, size),
+                            new BABYLON.Vector3(0, -0.05 * size, size * 0.95),
+                            new BABYLON.Vector3(0, 0, size),
+                            new BABYLON.Vector3(0, 0.05 * size, size * 0.95)
+                        ], // 定义线段的点列表
+                        updatable: false // 是否允许更新
+                    },
 					scene
 				);
 				axisZ.color = new BABYLON.Color3(0, 0, 1);
