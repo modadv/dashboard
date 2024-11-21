@@ -47,6 +47,8 @@
 				scene
 			);
 			camera1.attachControl(canvas, true);
+			camera1.viewport = new BABYLON.Viewport(0, 0.5, 0.5, 0.5);
+			scene?.activeCameras?.push(camera1);
 
 			//camera 2
 			let camera2 = new BABYLON.ArcRotateCamera(
@@ -58,13 +60,34 @@
 				scene
 			);
 			camera2.attachControl(canvas, true);
-
-			// Two Viewports
-			camera1.viewport = new BABYLON.Viewport(0, 0.5, 1, 1);
-			camera2.viewport = new BABYLON.Viewport(0, 0, 1, 0.5);
-
-			scene?.activeCameras?.push(camera1);
+			camera2.viewport = new BABYLON.Viewport(0, 0, 0.5, 0.5);
 			scene?.activeCameras?.push(camera2);
+
+			//camera 3
+			let camera3 = new BABYLON.ArcRotateCamera(
+				'camera1',
+				(5 * Math.PI) / 8,
+				(5 * Math.PI) / 8,
+				30,
+				new BABYLON.Vector3(0, 2, 0),
+				scene
+			);
+			camera3.attachControl(canvas, true);
+			camera3.viewport = new BABYLON.Viewport(0.5, 0, 0.5, 0.5);
+			scene?.activeCameras?.push(camera3);
+
+			//camera 4
+			let camera4 = new BABYLON.ArcRotateCamera(
+				'camera1',
+				(5 * Math.PI) / 8,
+				(5 * Math.PI) / 8,
+				30,
+				new BABYLON.Vector3(0, 2, 0),
+				scene
+			);
+			camera4.attachControl(canvas, true);
+			camera4.viewport = new BABYLON.Viewport(0.5, 0.5, 0.5, 0.5);
+			scene?.activeCameras?.push(camera4);
 
 			// lights
 			let light1 = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(1, 0.5, 0), scene);
@@ -139,6 +162,7 @@
 				axisY.color = new BABYLON.Color3(0, 1, 0);
 				let yChar = makeTextPlane('Y', 'green', size / 10);
 				yChar.position = new BABYLON.Vector3(0, 0.9 * size, -0.05 * size);
+
 				let axisZ = BABYLON.MeshBuilder.CreateLines(
 					'axisZ',
 					{
