@@ -55,7 +55,7 @@
 
 		function createScene() {
 			let scene = new BABYLON.Scene(engine);
-			scene.clearColor = new BABYLON.Color4(0.25, 0.25, 0.25, 1);
+			scene.clearColor = new BABYLON.Color4(0.1, 0.1, 0.2, 1);
 
 
             const cameraQuad3 = new BABYLON.UniversalCamera('cameraQuad3', CAMERAQUAD3_POSITION, scene);
@@ -241,10 +241,10 @@
     <div class="relative h-full w-full">
         <canvas bind:this={canvas} class="h-full w-full"></canvas>
         <!-- 四个 Viewport 边框 -->
-        <div class="absolute border-2 border-red-500" style="top: 0; left:0; width: 50%; height: 50%; box-sizing: border-box; pointer-events: none;"></div>
-        <div class="absolute border-2 border-red-500" style="top: 0; left:50%; width: 50%; height: 50%; box-sizing: border-box; pointer-events: none;"></div>
-        <div class="absolute border-2 border-red-500" style="top:50%; left:0; width: 50%; height: 50%; box-sizing: border-box; pointer-events: none;"></div>
-        <div class="absolute border-2 border-red-500" style="top:50%; left:50%; width: 50%; height: 50%; box-sizing: border-box; pointer-events: none;"></div>
+        <div class="absolute border-2 border-gray-500" style="top: 0; left:0; width: 50%; height: 50%; box-sizing: border-box; pointer-events: none;"></div>
+        <div class="absolute border-2 border-gray-500" style="top: 0; left:50%; width: 50%; height: 50%; box-sizing: border-box; pointer-events: none;"></div>
+        <div class="absolute border-2 border-gray-500" style="top:50%; left:0; width: 50%; height: 50%; box-sizing: border-box; pointer-events: none;"></div>
+        <div class="absolute border-2 border-gray-500" style="top:50%; left:50%; width: 50%; height: 50%; box-sizing: border-box; pointer-events: none;"></div>
     </div>
 
     <div
