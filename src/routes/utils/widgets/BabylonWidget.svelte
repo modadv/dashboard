@@ -32,10 +32,10 @@
 
     const FOV = Math.PI / 4; // 45 degrees
 
-    const LAYER_MASK_LT = 0x00000001;
-    const LAYER_MASK_RT = 0x00000010;
-    const LAYER_MASK_LB = 0x00000100;
-    const LAYER_MASK_RB = 0x00001000;
+    const LAYER_MASK_1 = 0x00000001;
+    const LAYER_MASK_2 = 0x00000010;
+    const LAYER_MASK_3 = 0x00000100;
+    const LAYER_MASK_4 = 0x00001000;
 	onMount(() => {
 		function startRenderLoop(engine: BABYLON.Engine, canvas: HTMLCanvasElement) {
 			engine.runRenderLoop(function () {
@@ -57,6 +57,14 @@
 			let scene = new BABYLON.Scene(engine);
 			scene.clearColor = new BABYLON.Color4(0.1, 0.1, 0.2, 1);
 
+            const cameraQuad2 = new BABYLON.UniversalCamera('cameraQuad2', CAMERAQUAD3_POSITION, scene);
+            cameraQuad2.setTarget(CAMERAQUAD3_TARGET);
+            cameraQuad2.fov = FOV;
+            cameraQuad2.maxZ = 1000;
+
+			cameraQuad2.viewport = new BABYLON.Viewport(0, 0.5, 0.5, 0.5);
+            cameraQuad2.layerMask = LAYER_MASK_2;
+			scene?.activeCameras?.push(cameraQuad2);
 
             const cameraQuad3 = new BABYLON.UniversalCamera('cameraQuad3', CAMERAQUAD3_POSITION, scene);
             cameraQuad3.setTarget(CAMERAQUAD3_TARGET);
@@ -64,18 +72,8 @@
             cameraQuad3.maxZ = 1000;
 
 			cameraQuad3.viewport = new BABYLON.Viewport(0, 0, 0.5, 0.5);
-            cameraQuad3.layerMask = LAYER_MASK_LT;
+            cameraQuad3.layerMask = LAYER_MASK_3;
 			scene?.activeCameras?.push(cameraQuad3);
-
-            const cameraQuad2 = new BABYLON.UniversalCamera('cameraQuad2', CAMERAQUAD3_POSITION, scene);
-            cameraQuad2.setTarget(CAMERAQUAD3_TARGET);
-            cameraQuad2.fov = FOV;
-            cameraQuad2.maxZ = 1000;
-
-			cameraQuad2.viewport = new BABYLON.Viewport(0, 0.5, 0.5, 0.5);
-            cameraQuad2.layerMask = LAYER_MASK_LB;
-			scene?.activeCameras?.push(cameraQuad2);
-
 
             const cameraQuad4 = new BABYLON.UniversalCamera('cameraQuad4', CAMERAQUAD4_POSITION, scene);
             cameraQuad4.setTarget(CAMERAQUAD4_TARGET);
@@ -83,11 +81,10 @@
             cameraQuad4.maxZ = 1000;
             
 			cameraQuad4.viewport = new BABYLON.Viewport(0.5, 0, 0.5, 0.5);
-            cameraQuad4.layerMask = LAYER_MASK_RT;
+            cameraQuad4.layerMask = LAYER_MASK_4;
 			scene?.activeCameras?.push(cameraQuad4);
 
-			//camera 4
-			let cameraRB = new BABYLON.ArcRotateCamera(
+			let camera1 = new BABYLON.ArcRotateCamera(
 				'cameraQuad3',
 				(5 * Math.PI) / 8,
 				(5 * Math.PI) / 8,
@@ -95,10 +92,10 @@
 				new BABYLON.Vector3(0, 2, 0),
 				scene
 			);
-			cameraRB.attachControl(canvas, true);
-			cameraRB.viewport = new BABYLON.Viewport(0.5, 0.5, 0.5, 0.5);
-            cameraRB.layerMask = LAYER_MASK_RB;
-			scene?.activeCameras?.push(cameraRB);
+			camera1.attachControl(canvas, true);
+			camera1.viewport = new BABYLON.Viewport(0.5, 0.5, 0.5, 0.5);
+            camera1.layerMask = LAYER_MASK_1;
+			scene?.activeCameras?.push(camera1);
 
 			// lights
 			let light1 = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(1, 0.5, 0), scene);
@@ -121,7 +118,7 @@
 				scene
 			);
 			box.material = new BABYLON.StandardMaterial('', scene);
-            box.layerMask = LAYER_MASK_RT;
+            box.layerMask = LAYER_MASK_1;
 			/*******************End Box Creation*****************************************/
 
 			/***********Create and Draw Axes**************************************/
