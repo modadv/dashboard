@@ -32,7 +32,7 @@
 
     const FOV = Math.PI / 4; // 45 degrees
 
-    const LAYER_MASK_1 = 0x00000001;
+    const LAYER_MASK_3D = 0x00000001;
     const LAYER_MASK_2 = 0x00000010;
     const LAYER_MASK_3 = 0x00000100;
     const LAYER_MASK_4 = 0x00001000;
@@ -57,6 +57,20 @@
 			let scene = new BABYLON.Scene(engine);
 			scene.clearColor = new BABYLON.Color4(0.1, 0.1, 0.2, 1);
 
+			let camera3d = new BABYLON.ArcRotateCamera(
+				'cameraQuad3',
+				(5 * Math.PI) / 8,
+				(5 * Math.PI) / 8,
+				30,
+				new BABYLON.Vector3(0, 2, 0),
+				scene
+			);
+			camera3d.attachControl(canvas, true);
+			camera3d.viewport = new BABYLON.Viewport(0.5, 0.5, 0.5, 0.5);
+            camera3d.layerMask = LAYER_MASK_3D;
+			scene?.activeCameras?.push(camera3d);
+
+
             const cameraQuad2 = new BABYLON.UniversalCamera('cameraQuad2', CAMERAQUAD3_POSITION, scene);
             cameraQuad2.setTarget(CAMERAQUAD3_TARGET);
             cameraQuad2.fov = FOV;
@@ -65,6 +79,17 @@
 			cameraQuad2.viewport = new BABYLON.Viewport(0, 0.5, 0.5, 0.5);
             cameraQuad2.layerMask = LAYER_MASK_2;
 			scene?.activeCameras?.push(cameraQuad2);
+            const plane = BABYLON.MeshBuilder.CreatePlane("plane", { size: 40 }, scene);
+            const material = new BABYLON.StandardMaterial("planeMaterial", scene);
+            material.diffuseTexture = new BABYLON.Texture("https://www.babylonjs-playground.com/textures/grass.png", scene);
+
+            material.backFaceCulling = false;
+            material.twoSidedLighting = true;
+
+            plane.material = material;
+            plane.layerMask = LAYER_MASK_2;
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////
 
             const cameraQuad3 = new BABYLON.UniversalCamera('cameraQuad3', CAMERAQUAD3_POSITION, scene);
             cameraQuad3.setTarget(CAMERAQUAD3_TARGET);
@@ -83,19 +108,6 @@
 			cameraQuad4.viewport = new BABYLON.Viewport(0.5, 0, 0.5, 0.5);
             cameraQuad4.layerMask = LAYER_MASK_4;
 			scene?.activeCameras?.push(cameraQuad4);
-
-			let camera1 = new BABYLON.ArcRotateCamera(
-				'cameraQuad3',
-				(5 * Math.PI) / 8,
-				(5 * Math.PI) / 8,
-				30,
-				new BABYLON.Vector3(0, 2, 0),
-				scene
-			);
-			camera1.attachControl(canvas, true);
-			camera1.viewport = new BABYLON.Viewport(0.5, 0.5, 0.5, 0.5);
-            camera1.layerMask = LAYER_MASK_1;
-			scene?.activeCameras?.push(camera1);
 
 			// lights
 			let light1 = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(1, 0.5, 0), scene);
@@ -118,7 +130,7 @@
 				scene
 			);
 			box.material = new BABYLON.StandardMaterial('', scene);
-            box.layerMask = LAYER_MASK_1;
+            box.layerMask = LAYER_MASK_3D;
 			/*******************End Box Creation*****************************************/
 
 			/***********Create and Draw Axes**************************************/
