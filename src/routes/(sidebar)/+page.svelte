@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { PageData } from './$types';
-    import BabylonPanel from '../utils/dashboard/BabylonPanel.svelte';
+    import BabylonPanel from '../utils/dashboard/BoardView.svelte';
     import MetaTag from '../utils/MetaTag.svelte';
     export let data: PageData;
 

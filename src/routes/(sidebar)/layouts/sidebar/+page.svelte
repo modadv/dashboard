@@ -1,5 +1,5 @@
 <script lang="ts">
-    import BabylonPanel from '../../../utils/dashboard/BabylonPanel.svelte';
+    import BabylonPanel from '../../../utils/dashboard/BoardView.svelte';
     import MetaTag from '../../../utils/MetaTag.svelte';
     import Footer from '../../Footer.svelte';
     import type { PageData } from './$types';
