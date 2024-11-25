@@ -173,22 +173,49 @@
 			light2.intensity = 0.8;
 
 			/*********************Create Box***************/
-			let faceColors: Array<BABYLON.Color4> = [];
-            faceColors[0] = BABYLON.Color4.FromColor3(BABYLON.Color3.Blue());
-            faceColors[1] = BABYLON.Color4.FromColor3(BABYLON.Color3.White());
-            faceColors[2] = BABYLON.Color4.FromColor3(BABYLON.Color3.Red());
-            faceColors[3] = BABYLON.Color4.FromColor3(BABYLON.Color3.Black());
-            faceColors[4] = BABYLON.Color4.FromColor3(BABYLON.Color3.Green());
-            faceColors[5] = BABYLON.Color4.FromColor3(BABYLON.Color3.Yellow());
+			// let faceColors: Array<BABYLON.Color4> = [];
+            // faceColors[0] = BABYLON.Color4.FromColor3(BABYLON.Color3.Blue());
+            // faceColors[1] = BABYLON.Color4.FromColor3(BABYLON.Color3.White());
+            // faceColors[2] = BABYLON.Color4.FromColor3(BABYLON.Color3.Red());
+            // faceColors[3] = BABYLON.Color4.FromColor3(BABYLON.Color3.Black());
+            // faceColors[4] = BABYLON.Color4.FromColor3(BABYLON.Color3.Green());
+            // faceColors[5] = BABYLON.Color4.FromColor3(BABYLON.Color3.Yellow());
             
-			let box = BABYLON.MeshBuilder.CreateBox(
-				'Box',
-				{ faceColors: faceColors, size: 2 },
-				scene
-			);
-			box.material = new BABYLON.StandardMaterial('', scene);
-            box.layerMask = LAYER_MASK_3D;
+			// let box = BABYLON.MeshBuilder.CreateBox(
+			// 	'Box',
+			// 	{ faceColors: faceColors, size: 2 },
+			// 	scene
+			// );
+			// box.material = new BABYLON.StandardMaterial('', scene);
+            // box.layerMask = LAYER_MASK_3D;
 			/*******************End Box Creation*****************************************/
+
+            /*****************Create Height Map Ground**************/
+                // Ground
+            var groundMaterial = new BABYLON.StandardMaterial("ground", scene);
+            groundMaterial.diffuseTexture = new BABYLON.Texture("textures/earth.jpg", scene);
+
+            var ground = BABYLON.Mesh.CreateGroundFromHeightMap("ground", "textures/worldHeightMap.jpg", 200, 200, 250, 0, 40, scene, false, function () {
+                ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.HeightmapImpostor, { mass: 0 });
+                scene.onPointerUp = function () {
+                    scene.meshes.forEach(function (m) {
+                        if (m.name == "s") {
+                            m.applyImpulse(new BABYLON.Vector3(Math.random(), 0, Math.random()).scale((Math.random() < 0.5) ? -15 : 15), m.getAbsolutePosition());
+                        }
+                    })
+                }
+
+                scene.registerBeforeRender(function () {
+                    scene.meshes.forEach(function (m) {
+                        if (m.name=="s" && m.position.y < 0) {
+                            m.dispose();
+                        }
+                    })
+                });
+            });
+            ground.material = groundMaterial;
+            ground.layerMask = LAYER_MASK_3D;
+            /*****************End Create Height Map Ground**********/
 
 			/***********Create and Draw Axes**************************************/
 			function showAxis(size: number) {
