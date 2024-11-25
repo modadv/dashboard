@@ -56,7 +56,6 @@
 		function createScene() {
 			let scene = new BABYLON.Scene(engine);
 			scene.clearColor = new BABYLON.Color4(0.1, 0.1, 0.2, 1);
-
 			let camera3d = new BABYLON.ArcRotateCamera(
 				'cameraQuad3',
 				(5 * Math.PI) / 8,
@@ -70,7 +69,6 @@
             camera3d.layerMask = LAYER_MASK_3D;
 			scene?.activeCameras?.push(camera3d);
 
-
             const cameraQuad2 = new BABYLON.UniversalCamera('cameraQuad2', CAMERAQUAD3_POSITION, scene);
             cameraQuad2.setTarget(CAMERAQUAD3_TARGET);
             cameraQuad2.fov = FOV;
@@ -79,15 +77,29 @@
 			cameraQuad2.viewport = new BABYLON.Viewport(0, 0.5, 0.5, 0.5);
             cameraQuad2.layerMask = LAYER_MASK_2;
 			scene?.activeCameras?.push(cameraQuad2);
-            const plane = BABYLON.MeshBuilder.CreatePlane("plane", { size: 40 }, scene);
-            const material = new BABYLON.StandardMaterial("planeMaterial", scene);
-            material.diffuseTexture = new BABYLON.Texture("https://www.babylonjs-playground.com/textures/grass.png", scene);
 
-            material.backFaceCulling = false;
-            material.twoSidedLighting = true;
+            const plane2 = BABYLON.MeshBuilder.CreatePlane("plane2", { size: 40 }, scene);
+            const material2 = new BABYLON.StandardMaterial("plane2Material", scene);
+            material2.diffuseTexture = new BABYLON.Texture("results/T_20241019112555250_1_NG/0/0_COMP1633_1633.png", scene);
+            (material2.diffuseTexture as BABYLON.Texture).onLoadObservable.add(() => {
+                if (material2.diffuseTexture) {
+                    const imgWidth = material2.diffuseTexture.getSize().width;
+                    const imgHeight = material2.diffuseTexture.getSize().height;
 
-            plane.material = material;
-            plane.layerMask = LAYER_MASK_2;
+                    // 计算图片宽高比
+                    const aspectRatio = imgWidth / imgHeight;
+
+                    // 调整平面比例
+                    plane2.scaling.x = aspectRatio * 0.2; // 宽度
+                    plane2.scaling.y = 1 * 0.2;           // 高度
+                }
+            });
+
+            material2.backFaceCulling = false;
+            material2.twoSidedLighting = true;
+
+            plane2.material = material2;
+            plane2.layerMask = LAYER_MASK_2;
 
             ////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -99,6 +111,29 @@
 			cameraQuad3.viewport = new BABYLON.Viewport(0, 0, 0.5, 0.5);
             cameraQuad3.layerMask = LAYER_MASK_3;
 			scene?.activeCameras?.push(cameraQuad3);
+            
+            const plane3 = BABYLON.MeshBuilder.CreatePlane("plane3", { size: 40 }, scene);
+            const material3 = new BABYLON.StandardMaterial("plane3Material", scene);
+            material3.diffuseTexture = new BABYLON.Texture("results/T_20241019112555250_1_NG/0/1635_0_20241018163719.jpg", scene);
+            (material3.diffuseTexture as BABYLON.Texture).onLoadObservable.add(() => {
+                if (material3.diffuseTexture) {
+                    const imgWidth = material3.diffuseTexture.getSize().width;
+                    const imgHeight = material3.diffuseTexture.getSize().height;
+
+                    // 计算图片宽高比
+                    const aspectRatio = imgWidth / imgHeight;
+
+                    // 调整平面比例
+                    plane3.scaling.x = aspectRatio * 0.2; // 宽度
+                    plane3.scaling.y = 1 * 0.2;           // 高度
+                }
+            });
+
+            material3.backFaceCulling = false;
+            material3.twoSidedLighting = true;
+
+            plane3.material = material3;
+            plane3.layerMask = LAYER_MASK_3;
 
             const cameraQuad4 = new BABYLON.UniversalCamera('cameraQuad4', CAMERAQUAD4_POSITION, scene);
             cameraQuad4.setTarget(CAMERAQUAD4_TARGET);
@@ -108,6 +143,28 @@
 			cameraQuad4.viewport = new BABYLON.Viewport(0.5, 0, 0.5, 0.5);
             cameraQuad4.layerMask = LAYER_MASK_4;
 			scene?.activeCameras?.push(cameraQuad4);
+
+            const plane4 = BABYLON.MeshBuilder.CreatePlane("plane4", { size: 40 }, scene);
+            const material4 = new BABYLON.StandardMaterial("plane4Material", scene);
+            material4.diffuseTexture = new BABYLON.Texture("results/T_20241019112555250_1_NG/0/0_COMP1390_1390.png", scene);
+            (material4.diffuseTexture as BABYLON.Texture).onLoadObservable.add(() => {
+                if (material4.diffuseTexture) {
+                    const imgWidth = material4.diffuseTexture.getSize().width;
+                    const imgHeight = material4.diffuseTexture.getSize().height;
+
+                    // 计算图片宽高比
+                    const aspectRatio = imgWidth / imgHeight;
+
+                    // 调整平面比例
+                    plane4.scaling.x = aspectRatio * 0.2; // 宽度
+                    plane4.scaling.y = 1 * 0.2;           // 高度
+                }
+            });
+            material4.backFaceCulling = false;
+            material4.twoSidedLighting = true;
+
+            plane4.material = material4;
+            plane4.layerMask = LAYER_MASK_4;
 
 			// lights
 			let light1 = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(1, 0.5, 0), scene);

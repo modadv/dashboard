@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<QAoiMesManData RepairUser="admin" BoardResult="0" ReviewTime="2024-09-30 08:48:09" BoardID="49ef23af-017a-4822-ba6d-738566dd3bd5" Barcode="">
+    <CompResults>
+        <CompResultsItem CompNGType="0" CompRepairAutoNGType="-1" CompPackage="08.06.1048" CompPart="08.06.1048" CompNGTypeStr="OK" CompCheckedFlag="true" CompID="72953626-5ac7-4cb4-b4ef-f7616f6a5de2" CompDesignator="C405" CompImagePath="/home/aoi/aoi/run/results/DSA3000-S54E-U1-V07-BOT-001/20240930/T_20240930084746327_1_NG/images/ng/Chip_C/0/C405_1802.png" CompType="Unknown" CompRepairAutoNGTypeStr="Unknown"/>
+    </CompResults>
+</QAoiMesManData>
