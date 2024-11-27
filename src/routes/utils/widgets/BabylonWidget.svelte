@@ -192,27 +192,52 @@
 
             /*****************Create Height Map Ground**************/
                 // Ground
-            var groundMaterial = new BABYLON.StandardMaterial("ground", scene);
+            let groundMaterial = new BABYLON.StandardMaterial("ground", scene);
+            groundMaterial.backFaceCulling = false;
             groundMaterial.diffuseTexture = new BABYLON.Texture("textures/earth.jpg", scene);
+            let ground = BABYLON.MeshBuilder.CreateGroundFromHeightMap(
+                "ground", 
+                "textures/worldHeightMap.jpg", 
+                {
+                    width: 200, 
+                    height: 200, 
+                    subdivisions: 250, 
+                    minHeight: 0, 
+                    maxHeight: 40, 
+                    onReady: function() {
+                        // 添加物理属性
+                        ground.physicsImpostor = new BABYLON.PhysicsImpostor(
+                            ground, 
+                            BABYLON.PhysicsImpostor.HeightmapImpostor, 
+                            { mass: 0 }
+                        );
 
-            var ground = BABYLON.Mesh.CreateGroundFromHeightMap("ground", "textures/worldHeightMap.jpg", 200, 200, 250, 0, 40, scene, false, function () {
-                ground.physicsImpostor = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.HeightmapImpostor, { mass: 0 });
-                scene.onPointerUp = function () {
-                    scene.meshes.forEach(function (m) {
-                        if (m.name == "s") {
-                            m.applyImpulse(new BABYLON.Vector3(Math.random(), 0, Math.random()).scale((Math.random() < 0.5) ? -15 : 15), m.getAbsolutePosition());
-                        }
-                    })
-                }
+                        // 鼠标点击时应用随机的冲量
+                        scene.onPointerUp = function () {
+                            scene.meshes.forEach(function (m) {
+                                if (m.name == "s") {
+                                    m.applyImpulse(
+                                        new BABYLON.Vector3(Math.random(), 0, Math.random()).scale(
+                                            (Math.random() < 0.5) ? -15 : 15
+                                        ), 
+                                        m.getAbsolutePosition()
+                                    );
+                                }
+                            });
+                        };
 
-                scene.registerBeforeRender(function () {
-                    scene.meshes.forEach(function (m) {
-                        if (m.name=="s" && m.position.y < 0) {
-                            m.dispose();
-                        }
-                    })
-                });
-            });
+                        // 每帧检查并移除低于y=0的网格
+                        scene.registerBeforeRender(function () {
+                            scene.meshes.forEach(function (m) {
+                                if (m.name == "s" && m.position.y < 0) {
+                                    m.dispose();
+                                }
+                            });
+                        });
+                    }
+                }, 
+                scene
+            );
             ground.material = groundMaterial;
             ground.layerMask = LAYER_MASK_3D;
             /*****************End Create Height Map Ground**********/
@@ -293,7 +318,7 @@
 		}
 
         async function initFunction() {
-            var asyncEngineCreation = async function () {
+            let asyncEngineCreation = async function () {
                 try {
                     return createDefaultEngine();
                 } catch (e) {
