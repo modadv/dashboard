@@ -1,7 +1,6 @@
 <script lang="ts">
-    import BabylonPanel from '../../utils/dashboard/BoardView.svelte';
+    import BoardView from '../../utils/dashboard/BoardView.svelte';
     import MetaTag from '../../utils/MetaTag.svelte';
-    import Footer from '../Footer.svelte';
     export let data;
 
     const path: string = '/dashboard';
@@ -13,6 +12,5 @@
 <MetaTag {path} {description} {title} {subtitle} />
 
 <main class="p-4">
-    <BabylonPanel {data} />
+    <BoardView {data} />
 </main>
-<Footer />

@@ -18,8 +18,10 @@
         hidden = !hidden;
     };
     
-    const maxProducts = 11;
-    let renderProducts = Products.slice(0, maxProducts);
+    const maxBoards = 5;
+    const maxComponents = 5;
+    let renderBoards = Products.slice(0, maxBoards);
+    let renderComponents = Products.slice(0, maxComponents);
 </script>
 
 <Card size="xl">
@@ -50,7 +52,46 @@
             {/each}
         </TableHead>
         <TableBody>
-            {#each renderProducts as product}
+            {#each renderBoards as product}
+                <TableBodyRow class="text-base">
+                    <TableBodyCell class="w-4 p-4"><Checkbox /></TableBodyCell>
+                    <TableBodyCell class="flex items-center space-x-6 whitespace-nowrap p-4">
+                        <div class="text-sm font-normal text-gray-500 dark:text-gray-400">
+                            <div class="text-base font-semibold text-gray-900 dark:text-white">
+                                {product.name}
+                            </div>
+                            <div class="text-sm font-normal text-gray-500 dark:text-gray-400">
+                                {product.category}
+                            </div>
+                        </div>
+                    </TableBodyCell>
+                    <TableBodyCell class="p-4">{product.technology}</TableBodyCell>
+                    <TableBodyCell
+                        class="max-w-sm overflow-hidden truncate p-4 text-base font-normal text-gray-500 dark:text-gray-400 xl:max-w-xs"
+                        >{product.description}</TableBodyCell
+                    >
+                    <TableBodyCell class="p-4">#{product.id}</TableBodyCell>
+                    <TableBodyCell class="p-4">{product.price}</TableBodyCell>
+                    <TableBodyCell class="p-4">{product.discount}</TableBodyCell>
+                    <TableBodyCell class="space-x-2">
+                        <Button size="sm" class="gap-2 px-3" on:click={() => toggle(Product)}>
+                            <EditOutline size="sm" /> Update
+                        </Button>
+                        <Button color="red" size="sm" class="gap-2 px-3" on:click={() => toggle(Delete)}>
+                            <TrashBinSolid size="sm" /> Delete item
+                        </Button>
+                    </TableBodyCell>
+                </TableBodyRow>
+            {/each}
+        </TableBody>
+        <TableHead class="border-y border-gray-200 bg-gray-100 dark:border-gray-700">
+            <TableHeadCell class="w-4 p-4"><Checkbox /></TableHeadCell>
+            {#each ['Product Name', 'Technology', 'Description', 'ID', 'Price', 'Discount', 'Actions'] as title}
+                <TableHeadCell class="ps-4 font-normal">{title}</TableHeadCell>
+            {/each}
+        </TableHead>
+        <TableBody>
+            {#each renderComponents as product}
                 <TableBodyRow class="text-base">
                     <TableBodyCell class="w-4 p-4"><Checkbox /></TableBodyCell>
                     <TableBodyCell class="flex items-center space-x-6 whitespace-nowrap p-4">
